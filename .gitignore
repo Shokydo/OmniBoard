@@ -1,0 +1,12 @@
+.DS_Store
+Thumbs.db
+*.log
+node_modules/
+# служебные кэши окружения
+.arena/
+.cache/
+.npm/
+.local/
+.config/
+sudo_as_admin_successful
+.sudo_as_admin_successful
