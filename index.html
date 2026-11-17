@@ -496,6 +496,7 @@ html[data-theme="light"] .auth{background:linear-gradient(165deg, rgba(232,235,2
 .auth-brand .brand-mark{width:34px;height:34px;font-size:14px;border-radius:10px}
 .auth-title{font-size:17px;font-weight:700;letter-spacing:-.01em}
 .auth-sub{font-size:11.5px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+.auth-lead{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:0 0 14px;font-weight:600}
 .auth-tabs{display:flex;gap:4px;background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:4px;margin-bottom:18px}
 .auth-tab{flex:1;height:32px;border-radius:7px;color:var(--text-2);font-size:13px;font-weight:600;transition:.12s}
 .auth-tab:hover{color:var(--text)}
@@ -2317,9 +2318,19 @@ function defaultPrefs(){ return JSON.parse(JSON.stringify(DEFAULT_PREFS)); }
 function dataKey(){ return LS_PREFIX_DATA + (currentUser ? currentUser.id : 'anon'); }
 function prefsKey(){ return LS_PREFIX_PREFS + (currentUser ? currentUser.id : 'anon'); }
 
-function lsGet(k){ try { return localStorage.getItem(k); } catch (e){ return null; } }
-function lsSet(k, v){ try { localStorage.setItem(k, v); return true; } catch (e){ return false; } }
-function lsDel(k){ try { localStorage.removeItem(k); } catch (e){} }
+var memStore = {};
+function lsGet(k){
+  try { var v = localStorage.getItem(k); if (v !== null) return v; } catch (e){}
+  return Object.prototype.hasOwnProperty.call(memStore, k) ? memStore[k] : null;
+}
+function lsSet(k, v){
+  memStore[k] = v;
+  try { localStorage.setItem(k, v); return true; } catch (e){ return false; }
+}
+function lsDel(k){
+  delete memStore[k];
+  try { localStorage.removeItem(k); } catch (e){}
+}
 
 function readAuth(){
   try {
@@ -2342,6 +2353,36 @@ function validatePassword(pw){
   return '';
 }
 
+var DEFAULT_LOGIN = 'shokydo';
+var DEFAULT_NAME = 'Shokydo';
+var DEFAULT_PASSWORD = 'omniboard';
+
+function buildUser(name, login, password, isDefault){
+  var salt = randomHex(16);
+  return {
+    id: 'u_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7),
+    login: login, name: name, salt: salt, iter: PBKDF2_ITER,
+    hash: pbkdf2Hex(password, salt, PBKDF2_ITER),
+    defaultPw: !!isDefault,
+    created: nowISO(), lastLogin: nowISO()
+  };
+}
+
+/* аккаунт создаётся один раз при первом запуске — регистрации в интерфейсе нет */
+function ensureDefaultAccount(){
+  var auth = readAuth();
+  if (auth.users.length) return false;
+  auth.users.push(buildUser(DEFAULT_NAME, DEFAULT_LOGIN, DEFAULT_PASSWORD, true));
+  writeAuth(auth);
+  return true;
+}
+
+function findUserById(uid){
+  var auth = readAuth(), found = null;
+  auth.users.forEach(function(u){ if (u.id === uid) found = u; });
+  return found;
+}
+
 function registerUser(name, loginRaw, password){
   var login = String(loginRaw || '').trim().toLowerCase();
   var nm = String(name || '').trim() || login;
@@ -2349,13 +2390,7 @@ function registerUser(name, loginRaw, password){
   if (err) return { error: err };
   var auth = readAuth();
   if (auth.users.some(function(u){ return u.login === login; })) return { error: 'Такой логин уже зарегистрирован' };
-  var salt = randomHex(16);
-  var user = {
-    id: 'u_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7),
-    login: login, name: nm, salt: salt, iter: PBKDF2_ITER,
-    hash: pbkdf2Hex(password, salt, PBKDF2_ITER),
-    created: nowISO(), lastLogin: nowISO()
-  };
+  var user = buildUser(nm, login, password, false);
   auth.users.push(user);
   if (!writeAuth(auth)) return { error: 'Браузер не разрешает сохранить данные (хранилище недоступно)' };
   return { user: user };
@@ -2388,6 +2423,8 @@ function changePassword(uid, currentPassword, newPassword){
   u.salt = randomHex(16);
   u.iter = PBKDF2_ITER;
   u.hash = pbkdf2Hex(newPassword, u.salt, PBKDF2_ITER);
+  u.defaultPw = false;
+  u.pwChangedAt = nowISO();
   if (!writeAuth(auth)) return { error: 'Не удалось сохранить пароль' };
   return { user: u };
 }
@@ -2454,10 +2491,12 @@ function loadPrefs(){
   if (prefs.bg.mode === 'image' && !prefs.bg.image) prefs.bg.mode = 'graphite';
 }
 
+var prefsWarned = false;
 function savePrefs(){
   if (!currentUser) return;
-  if (!lsSet(prefsKey(), JSON.stringify(prefs))){
-    toast('Не удалось сохранить оформление: хранилище переполнено', 4000);
+  if (!lsSet(prefsKey(), JSON.stringify(prefs)) && !prefsWarned){
+    prefsWarned = true;
+    toast('Настройки не сохраняются: хранилище браузера недоступно', 4500);
   }
 }
 
@@ -2628,80 +2667,53 @@ function authError(msg, fieldId){
   if (fieldId){ var f = $('#' + fieldId); if (f) f.classList.add('bad'); }
 }
 
-function showAuth(tab){
+function showAuth(){
   var host = $('#authHost');
   if (!host) return;
   document.body.classList.add('auth-mode');
+  ensureDefaultAccount();
+
   host.innerHTML =
     '<div class="auth" id="authScreen"><div class="auth-card">' +
       '<div class="auth-brand">' +
         '<div class="brand-mark">OB</div>' +
         '<div><div class="auth-title">OmniBoard</div><div class="auth-sub">доски задач</div></div>' +
       '</div>' +
-      '<div class="auth-tabs">' +
-        '<button class="auth-tab" data-auth-tab="login">Вход</button>' +
-        '<button class="auth-tab" data-auth-tab="register">Регистрация</button>' +
-      '</div>' +
+      '<div class="auth-lead">Вход в аккаунт</div>' +
       '<div class="auth-msg" id="authMsg"></div>' +
       '<form id="authForm" novalidate>' +
-        '<div class="field" data-only="register"><label for="auName">Имя</label>' +
-          '<input class="input" id="auName" type="text" placeholder="Как вас зовут" autocomplete="name"></div>' +
         '<div class="field"><label for="auLogin">Логин</label>' +
-          '<input class="input" id="auLogin" type="text" placeholder="например, shokydo" autocomplete="username" autocapitalize="none" spellcheck="false"></div>' +
+          '<input class="input" id="auLogin" type="text" value="' + esc(DEFAULT_NAME) + '" autocomplete="username" autocapitalize="none" spellcheck="false"></div>' +
         '<div class="field"><label for="auPass">Пароль</label>' +
-          '<input class="input" id="auPass" type="password" placeholder="минимум 6 символов" autocomplete="current-password"></div>' +
-        '<div class="field" data-only="register"><label for="auPass2">Повторите пароль</label>' +
-          '<input class="input" id="auPass2" type="password" placeholder="ещё раз" autocomplete="new-password"></div>' +
-        '<label class="checkline" data-only="login"><input type="checkbox" id="auRemember" checked> Запомнить меня на этом устройстве</label>' +
+          '<input class="input" id="auPass" type="password" placeholder="пароль" autocomplete="current-password"></div>' +
+        '<label class="checkline"><input type="checkbox" id="auRemember" checked> Запомнить меня на этом устройстве</label>' +
         '<button class="btn solid auth-submit" type="submit" id="authSubmit">Войти</button>' +
       '</form>' +
-      '<div class="auth-note">Аккаунты и доски хранятся <b>только в этом браузере</b>, пароль — в виде хеша ' +
-        'PBKDF2-SHA256 с солью. Забытый пароль восстановить нельзя, но данные можно выгрузить в JSON.</div>' +
+      '<div class="auth-note">Вход только для существующих аккаунтов. Пароль по умолчанию — ' +
+        '<b>' + esc(DEFAULT_PASSWORD) + '</b>, смените его в настройках аккаунта после входа.<br>' +
+        'Данные хранятся <b>только в этом браузере</b>, пароль — в виде хеша PBKDF2-SHA256 с солью.</div>' +
     '</div></div>';
 
-  var current = tab || 'login';
   var form = $('#authForm');
-
-  function setTab(t){
-    current = t;
-    $$('[data-only]').forEach(function(el){ el.style.display = (el.getAttribute('data-only') === t) ? '' : 'none'; });
-    $$('[data-auth-tab]').forEach(function(b){ b.classList.toggle('active', b.getAttribute('data-auth-tab') === t); });
-    $('#authSubmit').textContent = t === 'register' ? 'Создать аккаунт' : 'Войти';
-    $('#auPass').setAttribute('autocomplete', t === 'register' ? 'new-password' : 'current-password');
-    var box = $('#authMsg'); if (box){ box.classList.remove('show'); }
-    $$('.input').forEach(function(i){ i.classList.remove('bad'); });
-    var focus = t === 'register' ? $('#auName') : $('#auLogin');
-    if (focus) setTimeout(function(){ focus.focus(); }, 40);
-  }
-
-  host.addEventListener('click', function(e){
-    var tabBtn = e.target.closest('[data-auth-tab]');
-    if (tabBtn){ e.preventDefault(); setTab(tabBtn.getAttribute('data-auth-tab')); }
-  });
+  var passInput = $('#auPass');
+  var loginInput = $('#auLogin');
+  setTimeout(function(){ if (passInput) passInput.focus(); }, 60);
 
   form.addEventListener('submit', function(e){
     e.preventDefault();
-    var login = $('#auLogin').value.trim();
-    var pass = $('#auPass').value;
+    var login = loginInput.value.trim();
+    var pass = passInput.value;
     if (!login){ return authError('Введите логин', 'auLogin'); }
     if (!pass){ return authError('Введите пароль', 'auPass'); }
 
-    if (current === 'register'){
-      var p2 = $('#auPass2').value;
-      if (pass !== p2) return authError('Пароли не совпадают', 'auPass2');
-      var r = registerUser($('#auName').value, login, pass);
-      if (r.error) return authError(r.error, 'auLogin');
-      startSession(r.user, true);
-      signIn(r.user, 'Аккаунт создан. Добро пожаловать!');
-    } else {
-      var res = loginUser(login, pass);
-      if (res.error) return authError(res.error, 'auPass');
-      startSession(res.user, $('#auRemember').checked);
-      signIn(res.user, 'С возвращением, ' + (res.user.name || res.user.login));
-    }
-  });
+    var res = loginUser(login, pass);
+    if (res.error) return authError(res.error, 'auPass');
 
-  setTab(current);
+    startSession(res.user, $('#auRemember').checked);
+    signIn(res.user, res.user.defaultPw
+      ? 'Вход выполнен. Смените пароль по умолчанию в настройках аккаунта.'
+      : 'С возвращением, ' + (res.user.name || res.user.login));
+  });
 }
 
 function hideAuth(){
@@ -2729,7 +2741,7 @@ function signOut(){
   renderBoard();
   loadPrefs();
   applyPrefs();
-  showAuth('login');
+  showAuth();
 }
 
 function renderAccountChip(){
@@ -3013,6 +3025,11 @@ function openAccount(){
       '<div class="prefs-row"><div class="pr-main"><div class="prefs-label">Данные</div>' +
         '<div class="prefs-hint">' + boards + ' ' + plural(boards, ['доска', 'доски', 'досок']) + ' · ' +
         tasks + ' ' + plural(tasks, ['задача', 'задачи', 'задач']) + ' · хранятся в этом браузере</div></div></div>' +
+      (rec && rec.defaultPw
+        ? '<div class="prefs-row" style="border-color:var(--line-2)"><div class="pr-main">' +
+            '<div class="prefs-label">Пароль по умолчанию</div>' +
+            '<div class="prefs-hint">Вы входите с паролем по умолчанию — задайте свой ниже.</div></div></div>'
+        : '') +
       '<div class="auth-msg" id="acMsg"></div>' +
       '<div class="sec-title" style="margin:16px 0 8px">Смена пароля</div>' +
       '<div class="field"><label for="acCur">Текущий пароль</label><input class="input" id="acCur" type="password" autocomplete="current-password"></div>' +
@@ -3022,7 +3039,7 @@ function openAccount(){
     '</div>' +
     '<div class="prefs-foot">' +
       '<button class="btn sm" data-acc-act="logout">Выйти</button>' +
-      '<div style="display:flex;gap:8px"><button class="btn sm danger" data-acc-act="delete">Удалить аккаунт</button>' +
+      '<div style="display:flex;gap:8px"><button class="btn sm danger" data-acc-act="reset">Сбросить данные</button>' +
       '<button class="btn solid sm" data-acc-act="close">Готово</button></div>' +
     '</div></div></div>';
 
@@ -3057,30 +3074,33 @@ function openAccount(){
       if (np !== np2){ accMsg('Новые пароли не совпадают'); return; }
       var res = changePassword(currentUser.id, cur, np);
       if (res.error){ accMsg(res.error); return; }
-      $('#acCur').value = ''; $('#acNew').value = ''; $('#acNew2').value = '';
-      accMsg('Пароль изменён', true);
+      openAccount();                       /* перерисовка: уходит предупреждение о пароле по умолчанию */
+      accMsg('Пароль изменён. Используйте его при следующем входе.', true);
       toast('Пароль изменён');
       return;
     }
 
     if (act === 'logout'){ signOut(); return; }
 
-    if (act === 'delete'){
+    if (act === 'reset'){
       askConfirm({
-        title: 'Удалить аккаунт «' + (currentUser.name || currentUser.login) + '»?',
-        text: 'Вместе с аккаунтом будут удалены все доски, задачи и настройки оформления. Действие необратимо.',
-        danger: true, ok: 'Удалить аккаунт'
+        title: 'Сбросить все данные аккаунта?',
+        text: 'Доски, задачи и настройки оформления будут удалены и заменены демо-доской. Аккаунт и пароль останутся.',
+        danger: true, ok: 'Сбросить'
       }).then(function(ok){
         if (!ok) return;
-        deleteAccount(currentUser.id);
-        currentUser = null;
-        closeAccount();
         state = { version: 2, activeBoard: null, boards: [], tasks: {} };
         openTaskId = null;
-        renderSidebar(); renderBoard();
-        loadPrefs(); applyPrefs();
-        showAuth('login');
-        toast('Аккаунт удалён');
+        seed();
+        state.activeBoard = state.boards[0].id;
+        saveNow();
+        prefs = defaultPrefs();
+        savePrefs();
+        closeAccount();
+        applyPrefs();
+        renderAll();
+        renderAccountChip();
+        toast('Данные сброшены');
       });
     }
   });
@@ -3119,6 +3139,7 @@ window.OmniBoard = {
 /* ======================= СТАРТ ======================= */
 (function start(){
   Snow.init();
+  ensureDefaultAccount();
   var sess = readSession();
   if (sess){
     var found = null;
@@ -3132,7 +3153,7 @@ window.OmniBoard = {
   }
   loadPrefs();
   applyPrefs();
-  showAuth('login');
+  showAuth();
 })();
 
 })();
