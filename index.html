@@ -511,7 +511,7 @@ html[data-theme="light"] .auth{background:linear-gradient(165deg, rgba(232,235,2
 .ubadge.admin{background:var(--solid);color:var(--solid-text);border-color:var(--solid)}
 .uacts{display:flex;gap:6px;flex:0 0 auto}
 .uacts .btn{padding:5px 9px;font-size:11.5px}
-.unew{margin-top:4px;padding-top:12px;border-top:1px dashed var(--line-2)}
+.unew{margin-top:4px}
 .auth-lead{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:0 0 14px;font-weight:600}
 .auth-tabs{display:flex;gap:4px;background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:4px;margin-bottom:18px}
 .auth-tab{flex:1;height:32px;border-radius:7px;color:var(--text-2);font-size:13px;font-weight:600;transition:.12s}
@@ -542,7 +542,7 @@ html[data-theme="light"] .auth{background:linear-gradient(165deg, rgba(232,235,2
 }
 html[data-theme="light"] .prefs{background:rgba(38,44,50,.42)}
 .prefs-card{
-  width:100%;max-width:560px;background:var(--panel);border:1px solid var(--line);border-radius:16px;
+  width:100%;max-width:1120px;background:var(--panel);border:1px solid var(--line);border-radius:16px;
   box-shadow:var(--shadow);overflow:hidden;margin:auto;
 }
 .prefs-head{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--line);background:var(--bg-2)}
@@ -551,7 +551,21 @@ html[data-theme="light"] .prefs{background:rgba(38,44,50,.42)}
 .prefs-tabs button{padding:6px 12px;border-radius:8px;font-size:12.5px;color:var(--text-2);font-weight:500;white-space:nowrap;flex:0 0 auto}
 .prefs-tabs button:hover{color:var(--text);background:var(--panel-2)}
 .prefs-tabs button.on{background:var(--solid);color:var(--solid-text)}
-.prefs-body{padding:6px 16px 14px;max-height:min(70vh,620px);overflow:auto}
+.prefs-body{padding:6px 18px 14px;max-height:min(74vh,660px);overflow:auto}
+.fx-col{min-width:0}
+@media (min-width:1000px){
+  .prefs-body{display:grid;grid-template-columns:1fr 1fr;column-gap:30px;align-items:start}
+  .prefs-body > .prefs-row{grid-column:auto}
+  .prefs-body > .sec-title,
+  .prefs-body > .prefs-sub,
+  .prefs-body > .auth-msg,
+  .prefs-body > .field,
+  .prefs-body > .unew,
+  .prefs-body > .ulist,
+  .prefs-body > .prefs-hint,
+  .prefs-body > div[style]{grid-column:1 / -1}
+  .prefs-row + .prefs-row{border-top:0}
+}
 .prefs-foot{display:flex;gap:8px;justify-content:space-between;padding:12px 16px;border-top:1px solid var(--line);background:var(--bg-2)}
 .prefs-row{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:12px 0;border-bottom:1px solid var(--line)}
 .prefs-row:last-child{border-bottom:0}
@@ -3212,6 +3226,7 @@ function fxTabHTML(){
   var shapes = [['snow', 'Снег'], ['flakes', 'Снежинки'], ['crosses', 'Крестики'], ['patterns', 'Узоры'], ['leaves', 'Листья']];
   var clicks = [['off', 'Нет'], ['wave', 'Волна'], ['ripple', 'Круг'], ['cross', 'Крестики'], ['spark', 'Искры']];
   return '' +
+    '<div class="fx-col">' +
     '<div class="sec-title" style="margin:14px 0 4px">Падающие частицы</div>' +
     '<div class="prefs-row"><div class="pr-main"><div class="prefs-label">Показывать частицы</div>' +
       '<div class="prefs-hint">Снежинки, крестики, узоры или листья поверх интерфейса</div></div>' +
@@ -3226,8 +3241,10 @@ function fxTabHTML(){
         '<output>' + (parseFloat(pt.speed) || 1).toFixed(1) + '×</output></div>' +
       colorRow('particles', pt.color, 'Цвет') +
     '</div>' +
+    '</div>' +
 
-    '<div class="sec-title" style="margin:18px 0 4px">Реакция на клик</div>' +
+    '<div class="fx-col">' +
+    '<div class="sec-title" style="margin:14px 0 4px">Реакция на клик</div>' +
     '<div class="slider-row"><label>Эффект</label>' + segHTML('ctype', clicks, ck.type) + '</div>' +
     '<div class="slider-row" style="' + (ck.type === 'off' ? 'opacity:.5' : '') + '"><label>Размер</label>' +
       '<input type="range" min="1" max="3" step="1" value="' + (parseInt(ck.size, 10) || 1) + '" data-range="csize">' +
@@ -3237,7 +3254,8 @@ function fxTabHTML(){
       '<button class="btn sm" data-prefs="test-fx">Проверить</button>' +
       '<span class="prefs-hint" style="margin:0">эффект срабатывает на любой клик мышью или пальцем</span></div>' +
     '<div class="prefs-hint">Цвет «Авто» следует теме: белый на тёмной, тёмно-серый на светлой. ' +
-      'Движение уважает системную настройку «уменьшить движение».</div>';
+      'Движение уважает системную настройку «уменьшить движение».</div>' +
+    '</div>';
 }
 
 /* ---------- вкладка «Аккаунт» ---------- */
@@ -3249,47 +3267,50 @@ function accountTabHTML(){
   var tasks = Object.keys(state.tasks).length;
 
   return '' +
-    '<div class="prefs-row"><div class="pr-main"><div class="prefs-label">Имя</div>' +
-      '<div class="prefs-hint">Показывается в шапке и на карточке профиля</div></div></div>' +
-    '<div class="field"><label for="acName">Имя</label>' +
-      '<input class="input" id="acName" value="' + esc(currentUser.name) + '"></div>' +
-    '<div style="margin-bottom:14px"><button class="btn solid sm" data-acc-act="save-name">Сохранить имя</button></div>' +
+    '<div class="fx-col">' +
+      '<div class="sec-title" style="margin:14px 0 8px">Профиль</div>' +
+      '<div class="field"><label for="acName">Имя</label>' +
+        '<input class="input" id="acName" value="' + esc(currentUser.name) + '"></div>' +
+      '<div style="margin-bottom:14px"><button class="btn solid sm" data-acc-act="save-name">Сохранить имя</button></div>' +
 
-    '<div class="prefs-row"><div class="pr-main"><div class="prefs-label">Логин</div>' +
-      '<div class="prefs-hint">@' + esc(currentUser.login) + ' · создан ' + fmtDate(rec && rec.created) + '</div></div></div>' +
+      '<div class="prefs-row"><div class="pr-main"><div class="prefs-label">Логин</div>' +
+        '<div class="prefs-hint">@' + esc(currentUser.login) + ' · создан ' + fmtDate(rec && rec.created) + '</div></div></div>' +
 
-    '<div class="prefs-row"><div class="pr-main"><div class="prefs-label">Роль</div>' +
-      '<div class="prefs-hint">' + (currentUser.role === 'admin'
-        ? 'Администратор: создаёт пользователей и управляет ими'
-        : 'Пользователь: свои доски и оформление') + '</div></div>' + roleBadge(currentUser.role) + '</div>' +
+      '<div class="prefs-row"><div class="pr-main"><div class="prefs-label">Роль</div>' +
+        '<div class="prefs-hint">' + (currentUser.role === 'admin'
+          ? 'Администратор: создаёт пользователей и управляет ими'
+          : 'Пользователь: свои доски и оформление') + '</div></div>' + roleBadge(currentUser.role) + '</div>' +
 
-    '<div class="prefs-row"><div class="pr-main"><div class="prefs-label">Данные</div>' +
-      '<div class="prefs-hint">' + boards + ' ' + plural(boards, ['доска', 'доски', 'досок']) + ' · ' +
-      tasks + ' ' + plural(tasks, ['задача', 'задачи', 'задач']) + ' · хранятся в этом браузере</div></div></div>' +
+      '<div class="prefs-row"><div class="pr-main"><div class="prefs-label">Данные</div>' +
+        '<div class="prefs-hint">' + boards + ' ' + plural(boards, ['доска', 'доски', 'досок']) + ' · ' +
+        tasks + ' ' + plural(tasks, ['задача', 'задачи', 'задач']) + ' · хранятся в этом браузере</div></div></div>' +
 
-    (rec && rec.defaultPw
-      ? '<div class="prefs-row" style="border-color:var(--line-2)"><div class="pr-main">' +
-          '<div class="prefs-label">Пароль по умолчанию</div>' +
-          '<div class="prefs-hint">Вы входите с паролем по умолчанию — задайте свой ниже.</div></div></div>'
-      : '') +
-
-    '<div class="auth-msg" id="acMsg"></div>' +
-
-    '<div class="sec-title" style="margin:16px 0 8px">Смена пароля</div>' +
-    '<div class="field"><label for="acCur">Текущий пароль</label>' +
-      '<input class="input" id="acCur" type="password" autocomplete="current-password"></div>' +
-    '<div class="field"><label for="acNew">Новый пароль</label>' +
-      '<input class="input" id="acNew" type="password" autocomplete="new-password"></div>' +
-    '<div class="field"><label for="acNew2">Повторите новый</label>' +
-      '<input class="input" id="acNew2" type="password" autocomplete="new-password"></div>' +
-    '<button class="btn solid sm" data-acc-act="save-pass">Изменить пароль</button>' +
-
-    '<div class="sec-title" style="margin:18px 0 8px">Прочее</div>' +
-    '<div style="display:flex;gap:8px;flex-wrap:wrap">' +
-      '<button class="btn sm" data-acc-act="logout">Выйти</button>' +
-      '<button class="btn sm danger" data-acc-act="reset">Сбросить данные</button>' +
+      (rec && rec.defaultPw
+        ? '<div class="prefs-row" style="border-color:var(--line-2)"><div class="pr-main">' +
+            '<div class="prefs-label">Пароль по умолчанию</div>' +
+            '<div class="prefs-hint">Вы входите с паролем по умолчанию — задайте свой в соседней колонке.</div></div></div>'
+        : '') +
     '</div>' +
-    '<div class="prefs-hint">Сброс вернёт демо-доски, аккаунт, пароль и роль останутся.</div>';
+
+    '<div class="fx-col">' +
+      '<div class="sec-title" style="margin:14px 0 8px">Смена пароля</div>' +
+      '<div class="field"><label for="acCur">Текущий пароль</label>' +
+        '<input class="input" id="acCur" type="password" autocomplete="current-password"></div>' +
+      '<div class="field"><label for="acNew">Новый пароль</label>' +
+        '<input class="input" id="acNew" type="password" autocomplete="new-password"></div>' +
+      '<div class="field"><label for="acNew2">Повторите новый</label>' +
+        '<input class="input" id="acNew2" type="password" autocomplete="new-password"></div>' +
+      '<button class="btn solid sm" data-acc-act="save-pass">Изменить пароль</button>' +
+
+      '<div class="sec-title" style="margin:20px 0 8px">Прочее</div>' +
+      '<div style="display:flex;gap:8px;flex-wrap:wrap">' +
+        '<button class="btn sm" data-acc-act="logout">Выйти</button>' +
+        '<button class="btn sm danger" data-acc-act="reset">Сбросить данные</button>' +
+      '</div>' +
+      '<div class="prefs-hint">Сброс вернёт демо-доски, аккаунт, пароль и роль останутся.</div>' +
+    '</div>' +
+
+    '<div class="auth-msg" id="acMsg"></div>';
 }
 
 /* ---------- вкладка «Пользователи» ---------- */
@@ -3313,11 +3334,14 @@ function usersTabHTML(){
       '</div></div>';
   }).join('');
 
-  return '<div class="sec-title" style="margin:14px 0 6px">Пользователи · ' + auth.users.length + '</div>' +
-    '<div class="ulist" id="userList">' + rows + '</div>' +
-    '<div class="auth-msg" id="acMsg"></div>' +
+  return '<div class="fx-col">' +
+      '<div class="sec-title" style="margin:14px 0 6px">Пользователи · ' + auth.users.length + '</div>' +
+      '<div class="ulist" id="userList">' + rows + '</div>' +
+    '</div>' +
+    '<div class="fx-col">' +
     '<div class="unew">' +
-      '<div class="field"><label for="nuLogin">Логин нового пользователя</label>' +
+      '<div class="sec-title" style="margin:14px 0 8px">Новый пользователь</div>' +
+      '<div class="field"><label for="nuLogin">Логин</label>' +
         '<input class="input" id="nuLogin" type="text" placeholder="например, anna" autocapitalize="none" spellcheck="false"></div>' +
       '<div class="field"><label for="nuName">Имя</label>' +
         '<input class="input" id="nuName" type="text" placeholder="как показывать в шапке"></div>' +
@@ -3326,7 +3350,8 @@ function usersTabHTML(){
       '<button class="btn solid sm" data-acc-act="user-new">Создать пользователя</button>' +
       '<div class="prefs-hint" style="margin-top:8px">Пароль виден здесь, чтобы вы могли передать его человеку. ' +
         'Свои данные каждый пользователь хранит в своём браузере.</div>' +
-    '</div>';
+    '</div></div>' +
+    '<div class="auth-msg" id="acMsg"></div>';
 }
 
 function tabHTML(tab){
