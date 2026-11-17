@@ -542,16 +542,17 @@ html[data-theme="light"] .auth{background:linear-gradient(165deg, rgba(232,235,2
 }
 html[data-theme="light"] .prefs{background:rgba(38,44,50,.42)}
 .prefs-card{
-  width:100%;max-width:1120px;background:var(--panel);border:1px solid var(--line);border-radius:16px;
+  width:100%;max-width:1120px;height:min(88vh,600px);display:flex;flex-direction:column;
+  background:var(--panel);border:1px solid var(--line);border-radius:16px;
   box-shadow:var(--shadow);overflow:hidden;margin:auto;
 }
-.prefs-head{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--line);background:var(--bg-2)}
+.prefs-head{flex:0 0 auto;display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--line);background:var(--bg-2)}
 .prefs-head h3{margin:0;font-size:14px;font-weight:650}
-.prefs-tabs{display:flex;gap:2px;padding:8px 10px;border-bottom:1px solid var(--line);background:var(--bg-2);overflow-x:auto}
+.prefs-tabs{flex:0 0 auto;display:flex;gap:2px;padding:8px 10px;border-bottom:1px solid var(--line);background:var(--bg-2);overflow-x:auto}
 .prefs-tabs button{padding:6px 12px;border-radius:8px;font-size:12.5px;color:var(--text-2);font-weight:500;white-space:nowrap;flex:0 0 auto}
 .prefs-tabs button:hover{color:var(--text);background:var(--panel-2)}
 .prefs-tabs button.on{background:var(--solid);color:var(--solid-text)}
-.prefs-body{padding:6px 18px 14px;max-height:min(74vh,660px);overflow:auto}
+.prefs-body{flex:1 1 auto;min-height:0;padding:6px 18px 14px;overflow:auto;overscroll-behavior:contain}
 .fx-col{min-width:0}
 @media (min-width:1000px){
   .prefs-body{display:grid;grid-template-columns:1fr 1fr;column-gap:30px;align-items:start}
@@ -566,7 +567,7 @@ html[data-theme="light"] .prefs{background:rgba(38,44,50,.42)}
   .prefs-body > div[style]{grid-column:1 / -1}
   .prefs-row + .prefs-row{border-top:0}
 }
-.prefs-foot{display:flex;gap:8px;justify-content:space-between;padding:12px 16px;border-top:1px solid var(--line);background:var(--bg-2)}
+.prefs-foot{flex:0 0 auto;display:flex;gap:8px;justify-content:space-between;padding:12px 16px;border-top:1px solid var(--line);background:var(--bg-2)}
 .prefs-row{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:12px 0;border-bottom:1px solid var(--line)}
 .prefs-row:last-child{border-bottom:0}
 .prefs-row .pr-main{min-width:0}
@@ -609,6 +610,8 @@ input[type="color"]{
 .users-row{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:12.5px;color:var(--text-2);padding:8px 0}
 .link-btn{color:var(--text);text-decoration:underline;text-underline-offset:2px;font-size:12.5px}
 @media (max-width:700px){
+  .prefs{padding:10px}
+  .prefs-card{height:min(92vh,760px)}
   .user-name{display:none}
   .user-chip{padding:0 4px}
   .prefs-row{flex-wrap:wrap}
@@ -3128,6 +3131,7 @@ function fmtDate(iso){
 }
 
 var settingsTab = 'look';
+var settingsScroll = { look: 0, fx: 0, account: 0, users: 0 };
 
 function settingsTabs(){
   var tabs = [['look', 'Оформление'], ['fx', 'Эффекты'], ['account', 'Аккаунт']];
@@ -3136,6 +3140,7 @@ function settingsTabs(){
 }
 
 function closeSettings(){
+  settingsScroll = { look: 0, fx: 0, account: 0, users: 0 };
   var host = $('#prefsHost');
   if (host) host.innerHTML = '';
 }
@@ -3374,6 +3379,14 @@ function renderSettings(){
   var host = $('#prefsHost');
   if (!host || !currentUser) return;
 
+  /* запомнить прокрутку текущей вкладки, чтобы окно не дёргалось */
+  var oldScreen = $('#prefsScreen');
+  if (oldScreen){
+    var oldBody = $('#settingsBody');
+    var oldTab = oldScreen.getAttribute('data-tab') || 'look';
+    if (oldBody) settingsScroll[oldTab] = oldBody.scrollTop;
+  }
+
   var tabs = settingsTabs();
   var known = tabs.some(function(t){ return t[0] === settingsTab; });
   if (!known) settingsTab = 'look';
@@ -3394,6 +3407,9 @@ function renderSettings(){
   if (!screen) return;
   screen.addEventListener('click', settingsClick);
   screen.addEventListener('input', settingsInput);
+
+  var newBody = $('#settingsBody');
+  if (newBody) newBody.scrollTop = settingsScroll[settingsTab] || 0;
 
   var preview = $('#bgPreview');
   if (preview){
