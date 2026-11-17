@@ -380,6 +380,10 @@ body.is-dragging .card{cursor:grabbing}
 .dialog-card h3{margin:0 0 6px;font-size:15px}
 .dialog-card p{margin:0 0 14px;color:var(--text-2);font-size:13px}
 .dialog-actions{display:flex;justify-content:flex-end;gap:8px}
+.io-tabs{display:flex;gap:4px;margin:0 0 12px;border-bottom:1px solid var(--line)}
+.io-tabs button{padding:7px 11px;border-radius:8px 8px 0 0;font-size:12.5px;color:var(--text-2);border-bottom:2px solid transparent}
+.io-tabs button:hover{color:var(--text)}
+.io-tabs button.on{color:var(--text);border-bottom-color:var(--solid);background:var(--panel-2)}
 .io-area{
   width:100%;height:180px;font-family:var(--mono);font-size:11.5px;background:var(--bg);
   border:1px solid var(--line);border-radius:var(--r-m);padding:10px;resize:vertical;
@@ -645,7 +649,7 @@ input[type="color"]{
       <div id="boardList"></div>
     </div>
     <div class="side-foot">
-      <button class="btn sm" id="exportBtn" title="Экспорт / импорт JSON">JSON</button>
+      <button class="btn sm" id="exportBtn" title="Экспорт и импорт: JSON, Markdown">Экспорт</button>
       <button class="btn sm" id="prefsBtn" title="Настройки: оформление, эффекты, аккаунт">⚙ Настройки</button>
     </div>
   </aside>
@@ -2036,58 +2040,344 @@ function openLightbox(src){
   });
 }
 
-/* ======================= ЭКСПОРТ / ИМПОРТ ======================= */
-function ioDialog(){
-  const host = $('#dialogHost');
-  const json = JSON.stringify({ boards: state.boards, tasks: state.tasks, activeBoard: state.activeBoard, prefs: prefs }, null, 2);
-  host.innerHTML = '<div class="dialog"><div class="dialog-card" style="max-width:660px">' +
-    '<h3>Резервная копия</h3>' +
-    '<p>Скопируйте JSON, чтобы сохранить доски. Или вставьте свой JSON и нажмите «Импорт» — текущие данные заменятся.</p>' +
-    '<textarea class="io-area" id="ioArea" spellcheck="false"></textarea>' +
-    '<div class="dialog-actions" style="margin-top:12px;flex-wrap:wrap">' +
-    '<button class="btn" data-io="close">Закрыть</button>' +
-    '<button class="btn" data-io="copy">Копировать</button>' +
-    '<button class="btn" data-io="download">Скачать .json</button>' +
-    '<button class="btn solid" data-io="import">Импорт</button>' +
-    '</div></div></div>';
-  const area = $('#ioArea');
-  area.value = json;
-  host.querySelector('.dialog').addEventListener('click', e => {
-    const b = e.target.closest('[data-io]');
+/* ======================= ЭКСПОРТ / ИМПОРТ (JSON И MARKDOWN) ======================= */
+function downloadText(name, mime, text){
+  try {
+    var blob = new Blob([text], { type: mime });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = name;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function(){ URL.revokeObjectURL(a.href); }, 2000);
+    toast('Файл сохранён');
+    return true;
+  } catch (e){
+    toast('Скачивание заблокировано — используйте «Копировать»');
+    return false;
+  }
+}
+
+function copyText(text){
+  var area = document.createElement('textarea');
+  area.value = text;
+  area.style.position = 'fixed';
+  area.style.opacity = '0';
+  document.body.appendChild(area);
+  area.select();
+  var ok = false;
+  try { ok = document.execCommand('copy'); } catch (e){ ok = false; }
+  area.remove();
+  if (ok){ toast('Скопировано'); return; }
+  if (navigator.clipboard){
+    navigator.clipboard.writeText(text).then(function(){ toast('Скопировано'); },
+      function(){ toast('Не удалось скопировать — выделите текст вручную'); });
+  } else {
+    toast('Не удалось скопировать — выделите текст вручную');
+  }
+}
+
+/* ---------- Markdown → доски ---------- */
+function mdPlain(s){
+  return String(s || '').replace(/`/g, '').replace(/^\s*[*_]{1,3}(.*?)[*_]{1,3}\s*$/, '$1').trim();
+}
+
+function parseMarkdown(md, fallbackTitle){
+  var lines = String(md || '').replace(/\r\n?/g, '\n').split('\n');
+  var boards = [], tasks = {};
+  var curBoard = null, curList = null, stack = [], last = null;
+  var fence = null, fenceLines = [], pendingEx = null, fenceIndent = 0;
+
+  function ensureBoard(title){
+    curBoard = { id: uid('b'), title: mdPlain(title) || fallbackTitle || 'Импорт из Markdown', created: nowISO(), lists: [] };
+    boards.push(curBoard);
+    curList = null; stack = []; last = null;
+    return curBoard;
+  }
+  function ensureList(title){
+    if (!curBoard) ensureBoard(fallbackTitle);
+    curList = { id: uid('l'), title: mdPlain(title) || 'Задачи', cards: [] };
+    curBoard.lists.push(curList);
+    stack = []; last = null;
+    return curList;
+  }
+  function makeTask(title, done, parent){
+    var t = {
+      id: uid('t'), title: title, desc: '', done: !!done,
+      images: [], examples: [], subtasks: [], parentId: parent ? parent.id : null,
+      created: nowISO(), updated: nowISO()
+    };
+    tasks[t.id] = t;
+    if (parent) parent.subtasks.push(t.id);
+    return t;
+  }
+  function addCard(title, done, depth){
+    var nm = mdPlain(title);
+    if (!nm) return null;
+    if (!curList) ensureList('Задачи');
+    var d = Math.max(0, Math.min(depth | 0, stack.length));
+    var t;
+    if (d === 0 || !stack.length){
+      t = makeTask(nm, done, null);
+      curList.cards.push(t.id);
+      stack = [t];
+    } else {
+      t = makeTask(nm, done, stack[d - 1]);
+      stack = stack.slice(0, d);
+      stack.push(t);
+    }
+    last = t;
+    return t;
+  }
+  function pushDesc(html){
+    if (!last) return;
+    last.desc = last.desc ? last.desc + '<br>' + html : html;
+  }
+
+  for (var i = 0; i < lines.length; i++){
+    var raw = lines[i];
+    var line = raw.replace(/\s+$/, '');
+
+    /* блоки кода внутри пункта — в описание задачи */
+    var fenceOpen = /^(\s*)(```|~~~)/.exec(line);
+    var fenceMatch = !!fenceOpen;
+    if (fence !== null){
+      if (fenceMatch){
+        var code = fenceLines.join('\n');
+        if (last && last.examples){
+          last.examples.push({ id: uid('ex'), title: pendingEx || 'Код из Markdown', body: code, mode: 'code' });
+        } else if (last){
+          pushDesc('<pre>' + esc(code) + '</pre>');
+        }
+        pendingEx = null; fence = null; fenceLines = [];
+      }
+      else fenceLines.push(raw.replace(new RegExp('^[ \\t]{0,' + fenceIndent + '}'), ''));
+      continue;
+    }
+    if (fenceMatch){ fence = '```'; fenceLines = []; fenceIndent = fenceOpen[1].replace(/\t/g, '  ').length; continue; }
+
+    if (!line.trim()) continue;
+    /* служебный курсив: «_12 задач, выполнено 3_», «_пусто_» */
+    if (/^_[^_].*_$/.test(line.trim())) continue;
+
+    var h1 = /^#\s+(.*)$/.exec(line);
+    if (h1){ ensureBoard(h1[1]); continue; }
+    var h2 = /^##\s+(.*)$/.exec(line);
+    if (h2){ ensureList(h2[1]); continue; }
+    var h3 = /^###+\s+(.*)$/.exec(line);
+    if (h3){ addCard(h3[1], false, 0); continue; }
+    if (/^\s*(-{3,}|\*{3,}|_{3,})\s*$/.test(line)) continue;   /* горизонтальная линия */
+
+    var bullet = /^(\s*)[-*+]\s+(.*)$/.exec(line);
+    if (bullet){
+      var indent = bullet[1].replace(/\t/g, '  ').length;
+      var body = bullet[2];
+      var done = false;
+      var box = /^\[( |x|X)\]\s*(.*)$/.exec(body);
+      if (box){ done = box[1].toLowerCase() === 'x'; body = box[2]; }
+      addCard(body, done, Math.floor(indent / 2));
+      continue;
+    }
+
+    var quote = /^(\s*)>\s?(.*)$/.exec(line);
+    if (quote){
+      var qText = mdPlain(quote[2]);
+      var exTag = /^пример\s*:\s*(.*)$/i.exec(qText);
+      if (exTag){ pendingEx = exTag[1] || 'Пример'; continue; }
+      if (/^изображений\s*:/i.test(qText)) continue;
+      var qd = Math.floor(quote[1].replace(/\t/g, '  ').length / 2);
+      var target = (qd > 0 && stack[qd - 1]) ? stack[qd - 1] : last;
+      if (target){
+        var html = esc(mdPlain(quote[2]));
+        target.desc = target.desc ? target.desc + '<br>' + html : html;
+        last = target;
+      }
+      continue;
+    }
+
+    var ordered = /^\s*\d+[.)]\s+(.*)$/.exec(line);
+    if (ordered){ addCard(ordered[1], false, 0); continue; }
+
+    /* обычный текст под пунктом — описание, иначе заголовок карточки */
+    if (last) pushDesc(esc(line.trim()));
+    else addCard(line.trim(), false, 0);
+  }
+  if (fence !== null && fenceLines.length) pushDesc('<pre>' + esc(fenceLines.join('\n')) + '</pre>');
+
+  /* доска без заголовка, но с задачами */
+  if (!boards.length && Object.keys(tasks).length) ensureBoard(fallbackTitle);
+
+  return { boards: boards, tasks: tasks };
+}
+
+/* ---------- доски → Markdown ---------- */
+function mdText(html){
+  if (!html) return '';
+  var flat = String(html)
+    .replace(/<\s*br\s*\/?>/gi, '\n')
+    .replace(/<\/(p|div|li|pre|h[1-6]|blockquote)>/gi, '\n')
+    .replace(/<li[^>]*>/gi, '- ')
+    .replace(/<[^>]+>/g, '');
+  var ta = document.createElement('textarea');
+  ta.innerHTML = flat;                    /* раскодирует &amp; и прочие сущности */
+  return String(ta.value || '').replace(/\u00a0/g, ' ').replace(/\n{3,}/g, '\n\n');
+}
+
+function cardToMarkdown(id, depth){
+  var t = state.tasks[id];
+  if (!t) return '';
+  var pad = new Array(depth + 1).join('  ');
+  var out = pad + '- [' + (t.done ? 'x' : ' ') + '] ' + String(t.title || '').replace(/\n+/g, ' ').trim() + '\n';
+
+  var desc = mdText(t.desc).split('\n');
+  for (var j = 0; j < desc.length; j++){
+    var line = desc[j].replace(/\s+$/, '');
+    if (!line.trim()) continue;
+    out += pad + '  > ' + line + '\n';
+  }
+
+  (t.examples || []).forEach(function(ex){
+    out += pad + '  > пример: ' + String(ex.title || 'код').replace(/\n/g, ' ') + '\n';
+    out += pad + '  ```\n';
+    String(ex.body || '').split('\n').forEach(function(l){ out += pad + '  ' + l + '\n'; });
+    out += pad + '  ```\n';
+  });
+
+  if ((t.images || []).length){
+    out += pad + '  > изображений: ' + t.images.length + '\n';
+  }
+
+  var subs = t.subtasks || [];
+  for (var i = 0; i < subs.length; i++) out += cardToMarkdown(subs[i], depth + 1);
+
+  return out;
+}
+
+function boardToMarkdown(b){
+  var total = 0, done = 0;
+  function walk(id){
+    var t = state.tasks[id]; if (!t) return;
+    total++; if (t.done) done++;
+    (t.subtasks || []).forEach(walk);
+  }
+  b.lists.forEach(function(l){ l.cards.forEach(walk); });
+
+  var out = '# ' + String(b.title || 'Без названия') + '\n\n';
+  out += '_' + total + ' ' + plural(total, ['задача', 'задачи', 'задач']) + ', выполнено ' + done +
+    ' · ' + b.lists.length + ' ' + plural(b.lists.length, ['колонка', 'колонки', 'колонок']) + '_\n\n';
+
+  b.lists.forEach(function(l){
+    out += '## ' + String(l.title || 'Колонка') + '\n\n';
+    if (!l.cards.length) out += '_пусто_\n\n';
+    l.cards.forEach(function(id){
+      var t = state.tasks[id];
+      if (!t) return;
+      out += cardToMarkdown(id, 0);
+    });
+    out += '\n';
+  });
+  return out;
+}
+
+function exportMarkdown(){
+  if (!state.boards.length) return '';
+  return state.boards.map(boardToMarkdown).join('\n---\n\n');
+}
+
+function importMarkdown(text, replace, fileName){
+  var parsed = parseMarkdown(text, fileName ? String(fileName).replace(/\.(md|markdown|txt)$/i, '') : 'Импорт из Markdown');
+  var taskCount = Object.keys(parsed.tasks).length;
+  if (!parsed.boards.length || !taskCount) return { error: 'В файле не нашлось ни одной задачи' };
+
+  if (replace){
+    state.boards = parsed.boards;
+    state.tasks = parsed.tasks;
+  } else {
+    parsed.boards.forEach(function(b){ state.boards.push(b); });
+    Object.keys(parsed.tasks).forEach(function(id){ state.tasks[id] = parsed.tasks[id]; });
+  }
+  state.activeBoard = parsed.boards[0].id;
+  saveNow();
+  renderSidebar();
+  renderBoard();
+  return { boards: parsed.boards.length, tasks: taskCount };
+}
+
+/* ---------- диалог ---------- */
+function ioDialog(tab){
+  var host = $('#dialogHost');
+  var json = JSON.stringify({ boards: state.boards, tasks: state.tasks, activeBoard: state.activeBoard, prefs: prefs }, null, 2);
+  var md = exportMarkdown();
+  var current = tab || 'json';
+
+  host.innerHTML = '<div class="dialog"><div class="dialog-card" style="max-width:780px">' +
+    '<h3>Экспорт и импорт</h3>' +
+    '<div class="io-tabs">' +
+      '<button data-io-tab="json" class="' + (current === 'json' ? 'on' : '') + '">JSON · резервная копия</button>' +
+      '<button data-io-tab="md" class="' + (current === 'md' ? 'on' : '') + '">Markdown · задачи текстом</button>' +
+    '</div>' +
+
+    '<div data-io-pane="json"' + (current === 'json' ? '' : ' hidden') + '>' +
+      '<p>Полная копия: доски, задачи, оформление. Вставьте свой JSON и нажмите «Импорт» — текущие данные заменятся.</p>' +
+      '<textarea class="io-area" id="ioArea" spellcheck="false"></textarea>' +
+      '<div class="dialog-actions" style="margin-top:12px;flex-wrap:wrap">' +
+        '<button class="btn" data-io="copy">Копировать</button>' +
+        '<button class="btn" data-io="download">Скачать .json</button>' +
+        '<button class="btn solid" data-io="import">Импорт JSON</button>' +
+      '</div>' +
+    '</div>' +
+
+    '<div data-io-pane="md"' + (current === 'md' ? '' : ' hidden') + '>' +
+      '<p><b># доска</b> · <b>## колонка</b> · <b>- [ ] задача</b> и <b>- [x] сделано</b> · вложенные пункты — подзадачи, ' +
+        'цитата <b>&gt;</b> — описание. Импорт добавляет новые доски, не трогая старые.</p>' +
+      '<textarea class="io-area" id="mdArea" spellcheck="false" style="height:220px"></textarea>' +
+      '<div class="dialog-actions" style="margin-top:12px;flex-wrap:wrap">' +
+        '<button class="btn" data-io="md-file">Выбрать .md</button>' +
+        '<button class="btn" data-io="md-copy">Копировать</button>' +
+        '<button class="btn" data-io="md-download">Скачать .md</button>' +
+        '<button class="btn solid" data-io="md-import">Импортировать</button>' +
+      '</div>' +
+      '<label class="checkline" style="margin-top:10px"><input type="checkbox" id="mdReplace"> заменить все доски, а не добавлять</label>' +
+      '<input type="file" id="mdFile" accept=".md,.markdown,.txt,text/markdown,text/plain" hidden>' +
+    '</div>' +
+
+    '<div class="dialog-actions" style="margin-top:12px">' +
+      '<button class="btn" data-io="close">Закрыть</button>' +
+    '</div>' +
+  '</div></div>';
+
+  var area = $('#ioArea');
+  var mdArea = $('#mdArea');
+  if (area) area.value = json;
+  if (mdArea) mdArea.value = md;
+
+  var card = host.querySelector('.dialog');
+  card.addEventListener('click', function(e){
+    var tabBtn = e.target.closest('[data-io-tab]');
+    if (tabBtn){
+      current = tabBtn.getAttribute('data-io-tab');
+      $$('[data-io-tab]', card).forEach(function(b){ b.classList.toggle('on', b === tabBtn); });
+      $$('[data-io-pane]', card).forEach(function(p){ p.hidden = p.getAttribute('data-io-pane') !== current; });
+      return;
+    }
+
+    var b = e.target.closest('[data-io]');
     if (!b){
       if (e.target.classList.contains('dialog')) closeDialog();
       return;
     }
-    const act = b.dataset.io;
+    var act = b.getAttribute('data-io');
+
     if (act === 'close'){ closeDialog(); return; }
-    if (act === 'copy'){
-      area.select();
-      let ok = false;
-      try { ok = document.execCommand('copy'); } catch (_){ ok = false; }
-      if (!ok && navigator.clipboard){
-        navigator.clipboard.writeText(area.value).then(() => toast('Скопировано')).catch(() => toast('Не удалось скопировать — выделите текст вручную'));
-      } else {
-        toast(ok ? 'Скопировано' : 'Не удалось скопировать — выделите текст вручную');
-      }
-      return;
-    }
-    if (act === 'download'){
-      try {
-        const blob = new Blob([area.value], { type: 'application/json' });
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = 'graphit-boards.json';
-        document.body.appendChild(a); a.click(); a.remove();
-        toast('Файл сохранён');
-      } catch (_){ toast('Скачивание заблокировано — используйте «Копировать»'); }
-      return;
-    }
+
+    /* --- JSON --- */
+    if (act === 'copy'){ copyText(area.value); return; }
+    if (act === 'download'){ downloadText('omniboard-backup.json', 'application/json', area.value); return; }
     if (act === 'import'){
-      let data;
+      var data;
       try { data = JSON.parse(area.value); } catch (_){ toast('Ошибка: некорректный JSON'); return; }
       if (!data || !Array.isArray(data.boards) || typeof data.tasks !== 'object'){ toast('Ошибка: не тот формат файла'); return; }
       askConfirm({ title: 'Заменить все данные?', text: 'Текущие доски и задачи будут потеряны.', danger: true, ok: 'Импортировать' })
-        .then(ok => {
+        .then(function(ok){
           if (!ok) return;
           state.boards = data.boards;
           state.tasks = data.tasks;
@@ -2103,17 +2393,61 @@ function ioDialog(){
             }
             savePrefs(); applyPrefs();
           }
-          Object.keys(state.tasks).forEach(id => {
-            const t = state.tasks[id];
+          Object.keys(state.tasks).forEach(function(id){
+            var t = state.tasks[id];
             t.images = t.images || []; t.examples = t.examples || [];
-            t.subtasks = Array.isArray(t.subtasks) ? t.subtasks.filter(x => state.tasks[x]) : [];
+            t.subtasks = Array.isArray(t.subtasks) ? t.subtasks.filter(function(x){ return state.tasks[x]; }) : [];
           });
           saveNow(); renderSidebar(); renderBoard();
           closeDialog();
           toast('Импортировано');
         });
+      return;
+    }
+
+    /* --- Markdown --- */
+    if (act === 'md-copy'){ copyText(mdArea.value); return; }
+    if (act === 'md-download'){ downloadText('omniboard-boards.md', 'text/markdown', mdArea.value); return; }
+
+    if (act === 'md-file'){
+      var fileInput = $('#mdFile');
+      if (fileInput) fileInput.click();
+      return;
+    }
+
+    if (act === 'md-import'){
+      var replace = !!($('#mdReplace') && $('#mdReplace').checked);
+      var run = function(){
+        var res = importMarkdown(mdArea.value, replace, 'Импорт из Markdown');
+        if (res.error){ toast(res.error); return; }
+        closeDialog();
+        toast('Импортировано: ' + res.boards + ' ' + plural(res.boards, ['доска', 'доски', 'досок']) +
+          ' · ' + res.tasks + ' ' + plural(res.tasks, ['задача', 'задачи', 'задач']), 4000);
+      };
+      if (replace){
+        askConfirm({ title: 'Заменить все доски?', text: 'Текущие доски и задачи будут потеряны.', danger: true, ok: 'Заменить' })
+          .then(function(ok){ if (ok) run(); });
+      } else {
+        run();
+      }
+      return;
     }
   });
+
+  var fileInput = $('#mdFile');
+  if (fileInput){
+    fileInput.addEventListener('change', function(){
+      var f = fileInput.files && fileInput.files[0];
+      if (!f) return;
+      var reader = new FileReader();
+      reader.onload = function(){
+        mdArea.value = String(reader.result || '');
+        toast('Файл загружен — нажмите «Импортировать»', 3500);
+      };
+      reader.onerror = function(){ toast('Не удалось прочитать файл'); };
+      reader.readAsText(f, 'utf-8');
+    });
+  }
 }
 
 /* ======================= ГЛОБАЛЬНЫЕ СОБЫТИЯ ======================= */
@@ -2133,7 +2467,7 @@ function bindGlobal(){
     if (!e.target.closest('#accountMenu') && !e.target.closest('#userChip')) closeAccountMenu();
   });
 
-  $('#exportBtn').addEventListener('click', ioDialog);
+  $('#exportBtn').addEventListener('click', function(){ ioDialog('json'); });
 
   $('#newBoardBtn').addEventListener('click', () => {
     askText({ title: 'Новая доска', placeholder: 'Например: Маркетинг', ok: 'Создать' }).then(title => {
@@ -3102,7 +3436,7 @@ function toggleAccountMenu(anchor){
       '<span>@' + esc(currentUser.login) + '</span></div>' +
     '<button data-acc="prefs">Настройки: оформление и эффекты</button>' +
     '<button data-acc="account">Аккаунт и пароль</button>' +
-    '<button data-acc="export">Экспорт / импорт JSON</button>' +
+    '<button data-acc="export">Импорт и экспорт (JSON, Markdown)</button>' +
     '<hr>' +
     '<button data-acc="logout" class="danger">Выйти</button>';
   document.body.appendChild(menu);
@@ -3710,6 +4044,9 @@ window.OmniBoard = {
   getUser: function(){ return currentUser; },
   getUsers: function(){ return readAuth().users.map(function(u){ return { id: u.id, login: u.login, name: u.name, role: u.role }; }); },
   getPrefs: function(){ return prefs; },
+  getBoards: function(){ return JSON.parse(JSON.stringify(state.boards)); },
+  getTasks: function(){ return JSON.parse(JSON.stringify(state.tasks)); },
+  exportMarkdown: function(){ return exportMarkdown(); },
   sha256Hex: function(str){ return bytesToHex(sha256(utf8Bytes(str))); },
   pbkdf2Hex: pbkdf2Hex
 };
