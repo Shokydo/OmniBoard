@@ -10,3 +10,4 @@ node_modules/
 .config/
 sudo_as_admin_successful
 .sudo_as_admin_successful
+uploads/

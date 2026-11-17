@@ -4,6 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>OmniBoard — доски задач</title>
+<link rel="icon" type="image/png" sizes="64x64" href="data:image/png;base64,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">
+<link rel="apple-touch-icon" href="data:image/png;base64,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">
 <style>
 /* ============ ТЕМА: ЧЁРНЫЙ / БЕЛЫЙ / СЕРЫЙ / ГРАФИТ ============ */
 :root{
@@ -57,8 +59,10 @@ input:focus,textarea:focus{outline:none}
   display:flex;align-items:center;gap:10px;padding:16px 16px 14px;border-bottom:1px solid var(--line);
 }
 .brand-mark{
-  width:28px;height:28px;border-radius:8px;background:var(--solid);color:var(--solid-text);
+  width:28px;height:28px;border-radius:50%;background:var(--solid);color:var(--solid-text);
   display:grid;place-items:center;font-weight:800;font-size:13px;letter-spacing:.5px;flex:0 0 auto;
+  background-image:url("data:image/png;base64,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");
+  background-size:cover;background-position:center;border:1px solid var(--line-2);
 }
 .brand-name{font-weight:700;letter-spacing:.16em;font-size:12px;text-transform:uppercase}
 .brand-sub{font-size:10.5px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase}
@@ -493,9 +497,21 @@ html[data-theme="light"] .auth{background:linear-gradient(165deg, rgba(232,235,2
   box-shadow:var(--shadow);padding:26px 24px 22px;
 }
 .auth-brand{display:flex;align-items:center;gap:11px;margin-bottom:20px}
-.auth-brand .brand-mark{width:34px;height:34px;font-size:14px;border-radius:10px}
+.auth-brand .brand-mark{width:38px;height:38px;font-size:14px;border-radius:50%}
 .auth-title{font-size:17px;font-weight:700;letter-spacing:-.01em}
 .auth-sub{font-size:11.5px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+.ulist{margin:0 0 12px}
+.urow{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)}
+.urow:last-child{border-bottom:0}
+.uinfo{min-width:0;flex:1 1 auto}
+.uname{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ulogin{font-size:11.5px;color:var(--muted);font-family:var(--mono,inherit)}
+.ubadge{font-size:10px;letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--line-2);
+  border-radius:999px;padding:2px 8px;color:var(--muted);white-space:nowrap}
+.ubadge.admin{background:var(--solid);color:var(--solid-text);border-color:var(--solid)}
+.uacts{display:flex;gap:6px;flex:0 0 auto}
+.uacts .btn{padding:5px 9px;font-size:11.5px}
+.unew{margin-top:4px;padding-top:12px;border-top:1px dashed var(--line-2)}
 .auth-lead{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:0 0 14px;font-weight:600}
 .auth-tabs{display:flex;gap:4px;background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:4px;margin-bottom:18px}
 .auth-tab{flex:1;height:32px;border-radius:7px;color:var(--text-2);font-size:13px;font-weight:600;transition:.12s}
@@ -594,7 +610,7 @@ input[type="color"]{
 <div class="app">
   <aside class="sidebar" id="sidebar">
     <div class="brand">
-      <div class="brand-mark">OB</div>
+      <div class="brand-mark" role="img" aria-label="Shokydo"></div>
       <div>
         <div class="brand-name">OmniBoard</div>
         <div class="brand-sub">доски задач</div>
@@ -2333,10 +2349,21 @@ function lsDel(k){
 }
 
 function readAuth(){
+  var auth;
   try {
     var d = JSON.parse(lsGet(LS_AUTH) || '{}');
-    return (d && Array.isArray(d.users)) ? d : { users: [] };
-  } catch (e){ return { users: [] }; }
+    auth = (d && Array.isArray(d.users)) ? d : { users: [] };
+  } catch (e){ auth = { users: [] }; }
+  /* миграция: у старых записей нет роли — владелец аккаунта становится админом */
+  var dirty = false;
+  auth.users.forEach(function(u){
+    if (u.role !== 'admin' && u.role !== 'user'){
+      u.role = (u.login === DEFAULT_LOGIN) ? 'admin' : 'user';
+      dirty = true;
+    }
+  });
+  if (dirty) writeAuth(auth);
+  return auth;
 }
 function writeAuth(a){ return lsSet(LS_AUTH, JSON.stringify(a)); }
 
@@ -2357,13 +2384,15 @@ var DEFAULT_LOGIN = 'shokydo';
 var DEFAULT_NAME = 'Shokydo';
 var DEFAULT_PASSWORD = 'omniboard';
 
-function buildUser(name, login, password, isDefault){
+function buildUser(name, login, password, opts){
+  opts = opts || {};
   var salt = randomHex(16);
   return {
     id: 'u_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7),
     login: login, name: name, salt: salt, iter: PBKDF2_ITER,
     hash: pbkdf2Hex(password, salt, PBKDF2_ITER),
-    defaultPw: !!isDefault,
+    role: opts.role === 'admin' ? 'admin' : 'user',
+    defaultPw: !!opts.defaultPw,
     created: nowISO(), lastLogin: nowISO()
   };
 }
@@ -2372,7 +2401,7 @@ function buildUser(name, login, password, isDefault){
 function ensureDefaultAccount(){
   var auth = readAuth();
   if (auth.users.length) return false;
-  auth.users.push(buildUser(DEFAULT_NAME, DEFAULT_LOGIN, DEFAULT_PASSWORD, true));
+  auth.users.push(buildUser(DEFAULT_NAME, DEFAULT_LOGIN, DEFAULT_PASSWORD, { role: 'admin', defaultPw: true }));
   writeAuth(auth);
   return true;
 }
@@ -2383,14 +2412,14 @@ function findUserById(uid){
   return found;
 }
 
-function registerUser(name, loginRaw, password){
+function registerUser(name, loginRaw, password, opts){
   var login = String(loginRaw || '').trim().toLowerCase();
   var nm = String(name || '').trim() || login;
   var err = validateLogin(login) || validatePassword(password);
   if (err) return { error: err };
   var auth = readAuth();
   if (auth.users.some(function(u){ return u.login === login; })) return { error: 'Такой логин уже зарегистрирован' };
-  var user = buildUser(nm, login, password, false);
+  var user = buildUser(nm, login, password, { role: opts && opts.role === 'admin' ? 'admin' : 'user' });
   auth.users.push(user);
   if (!writeAuth(auth)) return { error: 'Браузер не разрешает сохранить данные (хранилище недоступно)' };
   return { user: user };
@@ -2440,6 +2469,62 @@ function renameUser(uid, name){
   u.name = nm;
   if (!writeAuth(auth)) return { error: 'Не удалось сохранить имя' };
   return { user: u };
+}
+
+function isAdmin(){
+  return !!(currentUser && currentUser.role === 'admin');
+}
+
+function countAdmins(auth){
+  var n = 0;
+  auth.users.forEach(function(u){ if (u.role === 'admin') n++; });
+  return n;
+}
+
+/* смена пароля другому пользователю: права администратора, текущий пароль не нужен */
+function adminSetPassword(uid, newPassword){
+  if (!isAdmin() && !(currentUser && currentUser.id === uid)) return { error: 'Недостаточно прав' };
+  var err = validatePassword(newPassword);
+  if (err) return { error: err };
+  var auth = readAuth(), u = null;
+  auth.users.forEach(function(x){ if (x.id === uid) u = x; });
+  if (!u) return { error: 'Пользователь не найден' };
+  u.salt = randomHex(16);
+  u.iter = PBKDF2_ITER;
+  u.hash = pbkdf2Hex(newPassword, u.salt, PBKDF2_ITER);
+  u.defaultPw = false;
+  u.pwChangedAt = nowISO();
+  if (!writeAuth(auth)) return { error: 'Не удалось сохранить пароль' };
+  return { user: u };
+}
+
+function setUserRole(uid, role){
+  if (!isAdmin()) return { error: 'Недостаточно прав' };
+  var auth = readAuth(), u = null;
+  auth.users.forEach(function(x){ if (x.id === uid) u = x; });
+  if (!u) return { error: 'Пользователь не найден' };
+  var next = role === 'admin' ? 'admin' : 'user';
+  if (u.role === 'admin' && next === 'user' && countAdmins(auth) < 2){
+    return { error: 'В системе должен остаться хотя бы один администратор' };
+  }
+  u.role = next;
+  if (!writeAuth(auth)) return { error: 'Не удалось сохранить роль' };
+  if (currentUser && currentUser.id === uid) currentUser.role = next;
+  return { user: u };
+}
+
+/* удаление чужого пользователя: сессия администратора сохраняется */
+function removeUser(uid){
+  if (!isAdmin()) return { error: 'Недостаточно прав' };
+  if (currentUser && currentUser.id === uid) return { error: 'Нельзя удалить самого себя' };
+  var auth = readAuth(), u = null;
+  auth.users.forEach(function(x){ if (x.id === uid) u = x; });
+  if (!u) return { error: 'Пользователь не найден' };
+  auth.users = auth.users.filter(function(x){ return x.id !== uid; });
+  if (!writeAuth(auth)) return { error: 'Не удалось удалить пользователя' };
+  lsDel(LS_PREFIX_DATA + uid);
+  lsDel(LS_PREFIX_PREFS + uid);
+  return { ok: true };
 }
 
 function deleteAccount(uid){
@@ -2676,7 +2761,7 @@ function showAuth(){
   host.innerHTML =
     '<div class="auth" id="authScreen"><div class="auth-card">' +
       '<div class="auth-brand">' +
-        '<div class="brand-mark">OB</div>' +
+        '<div class="brand-mark" role="img" aria-label="Shokydo"></div>' +
         '<div><div class="auth-title">OmniBoard</div><div class="auth-sub">доски задач</div></div>' +
       '</div>' +
       '<div class="auth-lead">Вход в аккаунт</div>' +
@@ -2689,7 +2774,7 @@ function showAuth(){
         '<label class="checkline"><input type="checkbox" id="auRemember" checked> Запомнить меня на этом устройстве</label>' +
         '<button class="btn solid auth-submit" type="submit" id="authSubmit">Войти</button>' +
       '</form>' +
-      '<div class="auth-note">Вход только для существующих аккаунтов. Пароль по умолчанию — ' +
+      '<div class="auth-note">Вход только для аккаунтов, созданных администратором. Пароль по умолчанию — ' +
         '<b>' + esc(DEFAULT_PASSWORD) + '</b>, смените его в настройках аккаунта после входа.<br>' +
         'Данные хранятся <b>только в этом браузере</b>, пароль — в виде хеша PBKDF2-SHA256 с солью.</div>' +
     '</div></div>';
@@ -2723,7 +2808,7 @@ function hideAuth(){
 }
 
 function signIn(user, greet){
-  currentUser = { id: user.id, login: user.login, name: user.name };
+  currentUser = { id: user.id, login: user.login, name: user.name, role: user.role === 'admin' ? 'admin' : 'user', defaultPw: !!user.defaultPw };
   hideAuth();
   enterApp();
   if (greet) toast(greet, 3000);
@@ -3013,8 +3098,45 @@ function openAccount(){
   var boards = state.boards.length;
   var tasks = Object.keys(state.tasks).length;
 
+  function roleBadge(role){
+    return '<span class="ubadge' + (role === 'admin' ? ' admin' : '') + '">' +
+      (role === 'admin' ? 'админ' : 'пользователь') + '</span>';
+  }
+
+  var usersSection = '';
+  if (currentUser.role === 'admin'){
+    var rows = auth.users.map(function(u){
+      var self = u.id === currentUser.id;
+      return '<div class="urow" data-uid="' + esc(u.id) + '">' +
+        '<div class="uinfo"><div class="uname">' + esc(u.name || u.login) + (self ? ' <span style="color:var(--muted);font-weight:400">(вы)</span>' : '') + '</div>' +
+          '<div class="ulogin">@' + esc(u.login) + '</div></div>' +
+        roleBadge(u.role) +
+        '<div class="uacts">' +
+          '<button class="btn sm" data-acc-act="user-reset" data-uid="' + esc(u.id) + '" title="Задать новый пароль">Пароль</button>' +
+          (self ? '' : '<button class="btn sm" data-acc-act="user-role" data-uid="' + esc(u.id) + '" data-role="' +
+            (u.role === 'admin' ? 'user' : 'admin') + '">' + (u.role === 'admin' ? 'Снять админа' : 'Админ') + '</button>') +
+          (self ? '' : '<button class="btn sm danger" data-acc-act="user-del" data-uid="' + esc(u.id) + '" title="Удалить пользователя">✕</button>') +
+        '</div></div>';
+    }).join('');
+
+    usersSection =
+      '<div class="sec-title" style="margin:18px 0 8px">Пользователи · ' + auth.users.length + '</div>' +
+      '<div class="ulist" id="userList">' + rows + '</div>' +
+      '<div class="unew">' +
+        '<div class="field"><label for="nuLogin">Логин нового пользователя</label>' +
+          '<input class="input" id="nuLogin" type="text" placeholder="например, anna" autocapitalize="none" spellcheck="false"></div>' +
+        '<div class="field"><label for="nuName">Имя</label>' +
+          '<input class="input" id="nuName" type="text" placeholder="как показывать в шапке"></div>' +
+        '<div class="field"><label for="nuPass">Пароль</label>' +
+          '<input class="input" id="nuPass" type="text" placeholder="минимум 6 символов" autocomplete="off"></div>' +
+        '<button class="btn solid sm" data-acc-act="user-new">Создать пользователя</button>' +
+        '<div class="prefs-hint" style="margin-top:8px">Пароль виден здесь, чтобы вы могли передать его человеку. ' +
+          'Свои данные каждый пользователь хранит в своём браузере.</div>' +
+      '</div>';
+  }
+
   host.innerHTML = '<div class="prefs" id="accScreen"><div class="prefs-card">' +
-    '<div class="prefs-head"><h3>Аккаунт</h3><span style="flex:1"></span>' +
+    '<div class="prefs-head"><h3>Аккаунт</h3>' + roleBadge(currentUser.role) + '<span style="flex:1"></span>' +
       '<button class="icon-btn" data-acc-act="close" title="Закрыть">✕</button></div>' +
     '<div class="prefs-body">' +
       '<div class="field"><label for="acName">Имя</label>' +
@@ -3030,6 +3152,7 @@ function openAccount(){
             '<div class="prefs-label">Пароль по умолчанию</div>' +
             '<div class="prefs-hint">Вы входите с паролем по умолчанию — задайте свой ниже.</div></div></div>'
         : '') +
+      usersSection +
       '<div class="auth-msg" id="acMsg"></div>' +
       '<div class="sec-title" style="margin:16px 0 8px">Смена пароля</div>' +
       '<div class="field"><label for="acCur">Текущий пароль</label><input class="input" id="acCur" type="password" autocomplete="current-password"></div>' +
@@ -3049,6 +3172,7 @@ function openAccount(){
     box.textContent = text;
     box.classList.add('show');
     box.style.borderColor = ok ? 'var(--line-2)' : 'var(--danger)';
+    try { box.scrollIntoView({ block: 'nearest' }); } catch (e){}
   }
 
   $('#accScreen').addEventListener('click', function(e){
@@ -3077,6 +3201,62 @@ function openAccount(){
       openAccount();                       /* перерисовка: уходит предупреждение о пароле по умолчанию */
       accMsg('Пароль изменён. Используйте его при следующем входе.', true);
       toast('Пароль изменён');
+      return;
+    }
+
+    if (act === 'user-new'){
+      var nuLogin = $('#nuLogin').value, nuName = $('#nuName').value, nuPass = $('#nuPass').value;
+      var nr = registerUser(nuName, nuLogin, nuPass);
+      if (nr.error){ accMsg(nr.error); return; }
+      openAccount();
+      accMsg('Пользователь @' + nr.user.login + ' создан. Пароль: ' + nuPass, true);
+      toast('Пользователь @' + nr.user.login + ' создан');
+      return;
+    }
+
+    if (act === 'user-reset'){
+      var rUid = b.getAttribute('data-uid');
+      var rUser = null;
+      readAuth().users.forEach(function(x){ if (x.id === rUid) rUser = x; });
+      if (!rUser) return;
+      askText({ title: 'Новый пароль для @' + rUser.login, text: 'Текущий пароль знать не нужно — старый перестанет работать.', placeholder: 'минимум 6 символов', ok: 'Сохранить' })
+        .then(function(pw){
+          if (!pw) return;
+          var rr = adminSetPassword(rUid, pw);
+          if (rr.error){ toast(rr.error); return; }
+          if (rUser.id === currentUser.id) currentUser.defaultPw = false;
+          openAccount();
+          accMsg('Пароль @' + rUser.login + ' изменён на: ' + pw, true);
+          toast('Пароль обновлён');
+        });
+      return;
+    }
+
+    if (act === 'user-role'){
+      var roleUid = b.getAttribute('data-uid'), roleNext = b.getAttribute('data-role');
+      var lr = setUserRole(roleUid, roleNext);
+      if (lr.error){ accMsg(lr.error); return; }
+      openAccount();
+      accMsg(roleNext === 'admin' ? 'Права администратора выданы' : 'Права администратора сняты', true);
+      return;
+    }
+
+    if (act === 'user-del'){
+      var dUid = b.getAttribute('data-uid'), dUser = null;
+      readAuth().users.forEach(function(x){ if (x.id === dUid) dUser = x; });
+      if (!dUser) return;
+      askConfirm({
+        title: 'Удалить пользователя @' + dUser.login + '?',
+        text: 'Вместе с аккаунтом удалятся его доски, задачи и настройки — в этом браузере.',
+        danger: true, ok: 'Удалить'
+      }).then(function(ok){
+        if (!ok) return;
+        var dr = removeUser(dUid);
+        if (dr.error){ toast(dr.error); return; }
+        openAccount();
+        accMsg('Пользователь @' + dUser.login + ' удалён', true);
+        toast('Пользователь удалён');
+      });
       return;
     }
 
@@ -3131,6 +3311,7 @@ function enterApp(){
 /* отладочный API для автотестов */
 window.OmniBoard = {
   getUser: function(){ return currentUser; },
+  getUsers: function(){ return readAuth().users.map(function(u){ return { id: u.id, login: u.login, name: u.name, role: u.role }; }); },
   getPrefs: function(){ return prefs; },
   sha256Hex: function(str){ return bytesToHex(sha256(utf8Bytes(str))); },
   pbkdf2Hex: pbkdf2Hex
@@ -3145,7 +3326,7 @@ window.OmniBoard = {
     var found = null;
     readAuth().users.forEach(function(u){ if (u.id === sess.uid) found = u; });
     if (found){
-      currentUser = { id: found.id, login: found.login, name: found.name };
+      currentUser = { id: found.id, login: found.login, name: found.name, role: found.role === 'admin' ? 'admin' : 'user', defaultPw: !!found.defaultPw };
       enterApp();
       return;
     }
