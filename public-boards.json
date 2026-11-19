@@ -1,0 +1,302 @@
+{
+  "version": 1,
+  "updated": "2026-11-19T02:19:38.475Z",
+  "owner": "OmniBoard",
+  "boards": [
+    {
+      "id": "b_mwmx9ml41a8pz",
+      "title": "Продукт",
+      "created": "2026-11-19T02:19:37.240Z",
+      "lists": [
+        {
+          "id": "l_mwmx9ml427xjr",
+          "title": "Бэклог",
+          "cards": [
+            "t_mwmx9ml59pcny"
+          ]
+        },
+        {
+          "id": "l_mwmx9ml43ry2z",
+          "title": "В работе",
+          "cards": [
+            "t_mwmx9ml5ifg11",
+            "t_mwmx9ml5mr5wo"
+          ]
+        },
+        {
+          "id": "l_mwmx9ml44yqj1",
+          "title": "Готово",
+          "cards": [
+            "t_mwmx9ml5nj8s6",
+            "t_mwmx9ml5ofy36"
+          ]
+        }
+      ],
+      "access": {
+        "guest": true,
+        "users": {}
+      }
+    },
+    {
+      "id": "b_mwmx9ml45rygm",
+      "title": "Личное",
+      "created": "2026-11-19T02:19:37.240Z",
+      "lists": [
+        {
+          "id": "l_mwmx9ml46617z",
+          "title": "Дела",
+          "cards": [
+            "t_mwmx9ml5pm3z4"
+          ]
+        },
+        {
+          "id": "l_mwmx9ml47m92o",
+          "title": "Сделано",
+          "cards": [
+            "t_mwmx9ml5q80k7"
+          ]
+        }
+      ],
+      "access": {
+        "guest": true,
+        "users": {}
+      }
+    }
+  ],
+  "tasks": {
+    "t_mwmx9ml59pcny": {
+      "id": "t_mwmx9ml59pcny",
+      "title": "Спроектировать систему вложенных задач",
+      "desc": "<p>Нужна структура <strong>задача → подзадача → подзадача</strong> без ограничения по глубине, с прогрессом по всему поддереву.</p><ul><li>хранение в плоском словаре <code>tasks</code></li><li>дерево строится по массиву <code>subtasks[]</code></li><li>удаление ветки — рекурсивное</li></ul><blockquote>Каждая подзадача — такая же полноценная задача: описание, изображения, примеры, свои подзадачи.</blockquote>",
+      "done": false,
+      "images": [],
+      "examples": [
+        {
+          "id": "ex_mwmx9ml48bm82",
+          "title": "Модель данных",
+          "mode": "code",
+          "body": "task = {\n  id, title, desc, done,\n  images: [], examples: [],\n  subtasks: [id, id],\n  parentId\n}"
+        }
+      ],
+      "subtasks": [
+        "t_mwmx9ml5ah5xi",
+        "t_mwmx9ml5d0kxr",
+        "t_mwmx9ml5j6iz1"
+      ],
+      "parentId": null,
+      "created": "2026-11-19T02:19:37.241Z",
+      "updated": "2026-11-19T02:19:37.241Z"
+    },
+    "t_mwmx9ml5ah5xi": {
+      "id": "t_mwmx9ml5ah5xi",
+      "title": "Определить модель данных",
+      "desc": "<p>Плоский словарь + ссылки на детей. Так проще обновлять и не надо рекурсивно сериализовать объект.</p>",
+      "done": true,
+      "images": [],
+      "examples": [],
+      "subtasks": [
+        "t_mwmx9ml5btwxs",
+        "t_mwmx9ml5c4h72"
+      ],
+      "parentId": "t_mwmx9ml59pcny",
+      "created": "2026-11-19T02:19:37.241Z",
+      "updated": "2026-11-19T02:19:37.241Z"
+    },
+    "t_mwmx9ml5btwxs": {
+      "id": "t_mwmx9ml5btwxs",
+      "title": "Плоский словарь + parentId",
+      "desc": "<p>Каждая задача знает своего родителя — легко строить хлебные крошки и считать уровень.</p>",
+      "done": true,
+      "images": [],
+      "examples": [],
+      "subtasks": [],
+      "parentId": "t_mwmx9ml5ah5xi",
+      "created": "2026-11-19T02:19:37.241Z",
+      "updated": "2026-11-19T02:19:37.241Z"
+    },
+    "t_mwmx9ml5c4h72": {
+      "id": "t_mwmx9ml5c4h72",
+      "title": "Рекурсивный подсчёт прогресса",
+      "desc": "<p><code>stats(task)</code> возвращает <code>{total, done}</code> по всему поддереву.</p>",
+      "done": true,
+      "images": [],
+      "examples": [],
+      "subtasks": [],
+      "parentId": "t_mwmx9ml5ah5xi",
+      "created": "2026-11-19T02:19:37.241Z",
+      "updated": "2026-11-19T02:19:37.241Z"
+    },
+    "t_mwmx9ml5d0kxr": {
+      "id": "t_mwmx9ml5d0kxr",
+      "title": "Отрисовка дерева",
+      "desc": "",
+      "done": false,
+      "images": [],
+      "examples": [],
+      "subtasks": [
+        "t_mwmx9ml5e2leo",
+        "t_mwmx9ml5fkpxq"
+      ],
+      "parentId": "t_mwmx9ml59pcny",
+      "created": "2026-11-19T02:19:37.241Z",
+      "updated": "2026-11-19T02:19:37.241Z"
+    },
+    "t_mwmx9ml5e2leo": {
+      "id": "t_mwmx9ml5e2leo",
+      "title": "Отступ и цвет ветки по уровню",
+      "desc": "<p>Левый бордер светлеет с каждым уровнем — глубина читается визуально, без цифр.</p>",
+      "done": true,
+      "images": [],
+      "examples": [],
+      "subtasks": [],
+      "parentId": "t_mwmx9ml5d0kxr",
+      "created": "2026-11-19T02:19:37.241Z",
+      "updated": "2026-11-19T02:19:37.241Z"
+    },
+    "t_mwmx9ml5fkpxq": {
+      "id": "t_mwmx9ml5fkpxq",
+      "title": "Сворачивание узлов",
+      "desc": "<p>Клик по треугольнику скрывает всё поддерево, не теряя содержимого.</p>",
+      "done": false,
+      "images": [],
+      "examples": [],
+      "subtasks": [
+        "t_mwmx9ml5ghk3m"
+      ],
+      "parentId": "t_mwmx9ml5d0kxr",
+      "created": "2026-11-19T02:19:37.241Z",
+      "updated": "2026-11-19T02:19:37.241Z"
+    },
+    "t_mwmx9ml5ghk3m": {
+      "id": "t_mwmx9ml5ghk3m",
+      "title": "Запоминать открытые узлы",
+      "desc": "<p>Набор открытых id живёт в памяти сессии — при перерисовке дерево не схлопывается.</p>",
+      "done": false,
+      "images": [],
+      "examples": [],
+      "subtasks": [],
+      "parentId": "t_mwmx9ml5fkpxq",
+      "created": "2026-11-19T02:19:37.241Z",
+      "updated": "2026-11-19T02:19:37.241Z"
+    },
+    "t_mwmx9ml5j6iz1": {
+      "id": "t_mwmx9ml5j6iz1",
+      "title": "Изображения и примеры",
+      "desc": "<p>Всё это доступно на каждом уровне вложенности, а не только в корневой задаче.</p>",
+      "done": false,
+      "images": [],
+      "examples": [],
+      "subtasks": [
+        "t_mwmx9ml5kqa7f",
+        "t_mwmx9ml5l8wjf"
+      ],
+      "parentId": "t_mwmx9ml59pcny",
+      "created": "2026-11-19T02:19:37.241Z",
+      "updated": "2026-11-19T02:19:37.241Z"
+    },
+    "t_mwmx9ml5kqa7f": {
+      "id": "t_mwmx9ml5kqa7f",
+      "title": "Галерея изображений с увеличением и удалением",
+      "desc": "",
+      "done": false,
+      "images": [],
+      "examples": [],
+      "subtasks": [],
+      "parentId": "t_mwmx9ml5j6iz1",
+      "created": "2026-11-19T02:19:37.241Z",
+      "updated": "2026-11-19T02:19:37.241Z"
+    },
+    "t_mwmx9ml5l8wjf": {
+      "id": "t_mwmx9ml5l8wjf",
+      "title": "Примеры: заметка или блок кода",
+      "desc": "",
+      "done": false,
+      "images": [],
+      "examples": [],
+      "subtasks": [],
+      "parentId": "t_mwmx9ml5j6iz1",
+      "created": "2026-11-19T02:19:37.241Z",
+      "updated": "2026-11-19T02:19:37.241Z"
+    },
+    "t_mwmx9ml5ifg11": {
+      "id": "t_mwmx9ml5ifg11",
+      "title": "Редактор текста в карточке",
+      "desc": "<p>Панель форматирования без внешних библиотек: жирный, курсив, подчёркивание, заголовки, списки, цитаты, блок кода, ссылки.</p><p>Картинки можно вставить прямо в текст — <em>Ctrl+V</em> из буфера.</p>",
+      "done": false,
+      "images": [],
+      "examples": [
+        {
+          "id": "ex_mwmx9ml5haoj0",
+          "title": "Что поддержать",
+          "mode": "note",
+          "body": "B / I / U / S, H2, H3, маркированный и нумерованный список, цитата, код, ссылка, линия-разделитель, вставка изображения."
+        }
+      ],
+      "subtasks": [],
+      "parentId": null,
+      "created": "2026-11-19T02:19:37.241Z",
+      "updated": "2026-11-19T02:19:37.241Z"
+    },
+    "t_mwmx9ml5mr5wo": {
+      "id": "t_mwmx9ml5mr5wo",
+      "title": "Перетаскивание карточек",
+      "desc": "<p>Карточки таскаются между колонками и внутри колонки. Списки тоже можно менять местами — за ручку <strong>⋮⋮</strong>.</p>",
+      "done": false,
+      "images": [],
+      "examples": [],
+      "subtasks": [],
+      "parentId": null,
+      "created": "2026-11-19T02:19:37.241Z",
+      "updated": "2026-11-19T02:19:37.241Z"
+    },
+    "t_mwmx9ml5nj8s6": {
+      "id": "t_mwmx9ml5nj8s6",
+      "title": "Графитовая тема",
+      "desc": "<p>Только чёрный, белый и серая шкала. Никаких цветных акцентов — состояние читается за счёт контраста и толщины линий.</p>",
+      "done": true,
+      "images": [],
+      "examples": [],
+      "subtasks": [],
+      "parentId": null,
+      "created": "2026-11-19T02:19:37.241Z",
+      "updated": "2026-11-19T02:19:37.241Z"
+    },
+    "t_mwmx9ml5ofy36": {
+      "id": "t_mwmx9ml5ofy36",
+      "title": "Экспорт и импорт JSON",
+      "desc": "<p>Резервная копия всех досок одним файлом.</p>",
+      "done": true,
+      "images": [],
+      "examples": [],
+      "subtasks": [],
+      "parentId": null,
+      "created": "2026-11-19T02:19:37.241Z",
+      "updated": "2026-11-19T02:19:37.241Z"
+    },
+    "t_mwmx9ml5pm3z4": {
+      "id": "t_mwmx9ml5pm3z4",
+      "title": "Купить лампу",
+      "desc": "<p>Тёплый свет 2700K.</p>",
+      "done": false,
+      "images": [],
+      "examples": [],
+      "subtasks": [],
+      "parentId": null,
+      "created": "2026-11-19T02:19:37.241Z",
+      "updated": "2026-11-19T02:19:37.241Z"
+    },
+    "t_mwmx9ml5q80k7": {
+      "id": "t_mwmx9ml5q80k7",
+      "title": "Разобрать папку «Загрузки»",
+      "desc": "",
+      "done": true,
+      "images": [],
+      "examples": [],
+      "subtasks": [],
+      "parentId": null,
+      "created": "2026-11-19T02:19:37.241Z",
+      "updated": "2026-11-19T02:19:37.241Z"
+    }
+  },
+  "demo": true
+}

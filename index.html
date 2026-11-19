@@ -510,8 +510,19 @@ label.acc-row>input[type="checkbox"]:checked::after,
 label.acc-row>input[type="checkbox"]:disabled,
 .acc-cell>input[type="checkbox"]:disabled{opacity:.35;cursor:default}
 .acc-scroll{border:1px solid var(--line);border-radius:12px;padding:6px 8px;background:var(--panel-2)}
+.pub-box{border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:var(--panel-2);margin-bottom:14px}
+.pub-box h4{margin:0 0 4px;font-size:13px;font-weight:650}
+.pub-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:10px}
+.pub-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin-top:10px}
+.pub-grid .input{width:100%}
+.pub-state{font-size:12px;color:var(--muted);line-height:1.6}
+.pub-msg{font-size:12.5px;margin-top:10px;min-height:16px}
+.pub-msg.ok{color:var(--text-2)}
+.pub-msg.err{color:var(--danger)}
+.pub-row label.pub-check{display:inline-flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);padding:6px 4px;white-space:nowrap}
 .prefs-body > .acc-scroll,
-.prefs-body > .acc-grid{grid-column:1 / -1}
+.prefs-body > .acc-grid,
+.prefs-body > .pub-box{grid-column:1 / -1}
 .acc-head{display:flex;align-items:center;gap:10px;padding:0 2px 8px;color:var(--muted);font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;font-weight:600}
 .acc-grid{display:grid;gap:2px;align-items:center}
 .acc-grid .acc-cell{display:grid;place-items:center;padding:6px 2px}
@@ -1167,45 +1178,84 @@ function copySharedTask(tasks, id, dest, fallback, viewer){
 }
 
 /* viewer === null — гость; иначе пользователь, которому открыли общие доски */
+function collectSharedFrom(boards, tasks, ownerName, ownerId, viewer, out, isSnapshot){
+  (boards || []).forEach(function(b){
+    var acc = accessOf(b);
+    if (!acc) return;
+    if (viewer){
+      if (acc.users && acc.users[viewer.id] === false) return;
+      if (!(acc.guest === true || (acc.users && acc.users[viewer.id] === true))) return;
+    } else if (acc.guest !== true) return;
+
+    var nb = { id: b.id, title: b.title, created: b.created, access: acc,
+               owner: ownerName, _ownerId: ownerId, _foreign: true, _snapshot: !!isSnapshot, lists: [] };
+    (b.lists || []).forEach(function(l){
+      var lAcc = accessOf(l) || acc;
+      if (!canSee(lAcc, viewer)) return;
+      var nl = { id: l.id, title: l.title, access: accessOf(l), cards: [] };
+      (l.cards || []).forEach(function(id){
+        var t = tasks[id];
+        if (!t || out.tasks[id]) return;
+        if (!canSee(chainAccessIn(tasks, t, lAcc), viewer)) return;
+        copySharedTask(tasks, id, out.tasks, lAcc, viewer);
+        nl.cards.push(id);
+      });
+      nl.cards = nl.cards.filter(function(id){ return !!out.tasks[id]; });
+      nb.lists.push(nl);
+    });
+    out.boards.push(nb);
+  });
+}
+
 function buildSharedState(viewer){
   var out = { version: 2, activeBoard: null, boards: [], tasks: {} };
   var skipId = viewer ? viewer.id : null;
+  var have = {};
   readAuth().users.forEach(function(u){
     if (skipId && u.id === skipId) return;
     var d = readUserData(u.id);
     if (!d) return;
-    var tasks = d.tasks || {};
-    (d.boards || []).forEach(function(b){
-      var acc = accessOf(b);
-      if (!acc) return;
-      if (viewer){
-        if (acc.users && acc.users[viewer.id] === false) return;
-        if (!(acc.guest === true || (acc.users && acc.users[viewer.id] === true))) return;
-      } else if (acc.guest !== true) return;
-
-      var nb = { id: b.id, title: b.title, created: b.created, access: acc,
-                 owner: u.name || u.login, _ownerId: u.id, _foreign: true, lists: [] };
-      (b.lists || []).forEach(function(l){
-        var lAcc = accessOf(l) || acc;
-        if (!canSee(lAcc, viewer)) return;
-        var nl = { id: l.id, title: l.title, access: accessOf(l), cards: [] };
-        (l.cards || []).forEach(function(id){
-          var t = tasks[id];
-          if (!t || out.tasks[id]) return;
-          if (!canSee(chainAccessIn(tasks, t, lAcc), viewer)) return;
-          copySharedTask(tasks, id, out.tasks, lAcc, viewer);
-          nl.cards.push(id);
-        });
-        nl.cards = nl.cards.filter(function(id){ return !!out.tasks[id]; });
-        nb.lists.push(nl);
-      });
-      out.boards.push(nb);
-    });
+    var before = out.boards.length;
+    collectSharedFrom(d.boards, d.tasks || {}, u.name || u.login, u.id, viewer, out, false);
+    for (var i = before; i < out.boards.length; i++) have[out.boards[i].id] = true;
   });
+  if (publicSnapshot && Array.isArray(publicSnapshot.boards)){
+    var src = publicSnapshot.boards.filter(function(b){ return !have[b.id]; });
+    collectSharedFrom(src, publicSnapshot.tasks || {}, publicSnapshot.owner || 'публичная доска', null, viewer, out, true);
+  }
   return out;
 }
 
 function buildGuestState(){ return buildSharedState(null); }
+
+/* ---------- публичный слепок: public-boards.json рядом со страницей ---------- */
+var publicSnapshot = null;
+var PUBLIC_SNAPSHOT_URL = 'public-boards.json';
+
+function fetchPublicSnapshot(){
+  if (typeof fetch !== 'function') return Promise.resolve(null);
+  return fetch(PUBLIC_SNAPSHOT_URL + '?v=' + Date.now(), { cache: 'no-store' })
+    .then(function(r){ return r.ok ? r.json() : null; })
+    .then(function(d){
+      if (d && Array.isArray(d.boards) && d.boards.length){
+        publicSnapshot = d;
+        return d;
+      }
+      return null;
+    })
+    .catch(function(){ return null; });
+}
+
+/* перерисовать общие доски после подгрузки слепка */
+function applyPublicSnapshot(snap){
+  if (!snap) return;
+  if (currentUser){
+    saveNow();          /* досохранить несохранённое перед повторной загрузкой */
+    enterApp();
+  } else {
+    enterGuest();
+  }
+}
 
 /* подмешать общие доски других аккаунтов к своим (только чтение) */
 function mergeShared(user){
@@ -1223,6 +1273,49 @@ function mergeShared(user){
   Object.keys(pool.tasks).forEach(function(id){
     if (!state.tasks[id]) state.tasks[id] = pool.tasks[id];
   });
+}
+
+/* ---------- сборка public-boards.json: только то, что видят гости ---------- */
+function copyTaskForSnapshot(tasks, id, dest, fallback){
+  var t = tasks[id];
+  if (!t || !dest || dest[id]) return;
+  var copy = JSON.parse(JSON.stringify(t));
+  copy.subtasks = (t.subtasks || []).filter(function(cid){
+    var c = tasks[cid];
+    return c && c.parentId === id && canSee(chainAccessIn(tasks, c, fallback), null);
+  });
+  dest[id] = copy;
+  copy.subtasks.forEach(function(cid){ copyTaskForSnapshot(tasks, cid, dest, fallback); });
+}
+
+function buildPublicSnapshot(){
+  var own = serializeOwn();
+  var out = {
+    version: 1,
+    updated: nowISO(),
+    owner: (currentUser && (currentUser.name || currentUser.login)) || 'OmniBoard',
+    boards: [],
+    tasks: {}
+  };
+  (own.boards || []).forEach(function(b){
+    if (!canSee(accessOf(b), null)) return;
+    var nb = JSON.parse(JSON.stringify(b));
+    nb.lists = (nb.lists || []).filter(function(l){ return listVisible(b, l, null); });
+    nb.lists.forEach(function(l){
+      l.cards = l.cards.filter(function(id){
+        var t = own.tasks[id];
+        return t && taskVisible(t, l, b, null) && !t.parentId;
+      });
+      l.cards.forEach(function(id){ copyTaskForSnapshot(own.tasks, id, out.tasks, accessOf(l) || accessOf(b)); });
+    });
+    nb.lists = nb.lists.filter(function(l){ return l.cards.length > 0; });
+    out.boards.push(nb);
+  });
+  return out;
+}
+
+function snapshotJSON(){
+  return JSON.stringify(buildPublicSnapshot(), null, 2);
 }
 
 function isReadOnlyBoard(){
@@ -4350,7 +4443,38 @@ function accessTabHTML(){
     return rows;
   }).join('');
 
-  return '<div class="sec-title" style="margin:14px 0 4px">Кто что видит</div>' +
+  var gitCfg = readGitCfg();
+  var guess = defaultRepoSlug();
+  var snapInfo = publicSnapshot
+    ? 'Файл <b>public-boards.json</b> загружен: обновлён ' + esc(String(publicSnapshot.updated || '').slice(0, 16).replace('T', ' ')) +
+      ', досок ' + publicSnapshot.boards.length + '.'
+    : 'Файл <b>public-boards.json</b> рядом со страницей не найден — гости на других устройствах видят только демо-доску.';
+
+  var publish = '<div class="pub-box">' +
+      '<h4>Публичный слепок для гостей</h4>' +
+      '<div class="pub-state">Чтобы доски видели гости <b>с любых устройств</b>, выложите слепок файлом ' +
+        '<b>public-boards.json</b> рядом с <b>index.html</b> (тот же репозиторий GitHub Pages). ' +
+        'В файл попадает только то, что открыто гостям — скрытые доски, списки и задачи туда не пишутся.<br>' + snapInfo + '</div>' +
+      '<div class="pub-row">' +
+        '<button class="btn sm solid" data-pub="download">Скачать public-boards.json</button>' +
+        '<button class="btn sm" data-pub="copy">Скопировать JSON</button>' +
+      '</div>' +
+      '<div class="pub-grid">' +
+        '<input class="input" id="pubRepo" placeholder="Shokydo/OmniBoard" value="' + esc(gitCfg.repo || guess) + '">' +
+        '<input class="input" id="pubBranch" placeholder="ветка" value="' + esc(gitCfg.branch || 'main') + '">' +
+        '<input class="input" id="pubPath" placeholder="public-boards.json" value="' + esc(gitCfg.path || 'public-boards.json') + '">' +
+        '<input class="input" id="pubToken" type="password" placeholder="токен GitHub (contents: read/write)" value="' + esc(gitCfg.token || '') + '">' +
+      '</div>' +
+      '<div class="pub-row">' +
+        '<button class="btn sm solid" data-pub="publish">Опубликовать на GitHub</button>' +
+        '<button class="btn sm" data-pub="forget">Забыть токен</button>' +
+        '<label class="pub-check"><input type="checkbox" id="pubRemember" checked> запомнить токен в этом браузере</label>' +
+      '</div>' +
+      '<div class="pub-msg" id="pubMsg"></div>' +
+    '</div>';
+
+  return publish +
+    '<div class="sec-title" style="margin:14px 0 4px">Кто что видит</div>' +
     '<div class="prefs-hint" style="margin-bottom:10px">Галочка «Гости» открывает доску, список или задачу всем без входа. ' +
       'Колонки с именами скрывают доску от конкретного пользователя: снятая галочка — человек её не увидит. ' +
       'Задачу можно открыть и из её карточки кнопкой «Доступ»; подзадачи наследуют доступ родительской задачи. ' +
@@ -4358,6 +4482,90 @@ function accessTabHTML(){
     head +
     '<div class="acc-scroll">' + (blocks || '<div class="prefs-hint">Досок пока нет.</div>') + '</div>' +
     '<div class="auth-msg" id="acMsg"></div>';
+}
+
+/* ---------- публикация слепка в GitHub ---------- */
+var LS_GIT = 'omniboard.git.v1';
+
+function readGitCfg(){
+  try {
+    var raw = lsGet(LS_GIT);
+    if (!raw) return {};
+    var d = JSON.parse(raw);
+    return (d && typeof d === 'object') ? d : {};
+  } catch (e){ return {}; }
+}
+
+function saveGitCfg(cfg){
+  try { lsSet(LS_GIT, JSON.stringify(cfg)); } catch (e){}
+}
+
+function defaultRepoSlug(){
+  try {
+    var h = location.hostname || '';
+    if (/\.github\.io$/.test(h)){
+      var owner = h.split('.')[0];
+      var seg = (location.pathname || '/').split('/').filter(Boolean)[0];
+      if (owner && seg) return owner + '/' + seg;
+    }
+  } catch (e){}
+  return '';
+}
+
+function pubMsg(text, ok){
+  var box = $('#pubMsg');
+  if (!box) return;
+  box.textContent = text || '';
+  box.className = 'pub-msg ' + (ok ? 'ok' : 'err');
+}
+
+function downloadPublicSnapshot(){
+  var snap = buildPublicSnapshot();
+  if (!snap.boards.length){ toast('Гостям пока не открыто ни одной доски'); }
+  downloadText('public-boards.json', 'application/json', JSON.stringify(snap, null, 2));
+  toast('Файл слепка скачан — положите его рядом с index.html');
+}
+
+function copyPublicSnapshot(){
+  copyText(JSON.stringify(buildPublicSnapshot(), null, 2));
+}
+
+function publishPublicSnapshot(){
+  var repo = (($('#pubRepo') || {}).value || '').trim();
+  var branch = (($('#pubBranch') || {}).value || 'main').trim();
+  var path = (($('#pubPath') || {}).value || 'public-boards.json').trim();
+  var token = (($('#pubToken') || {}).value || '').trim();
+  var remember = $('#pubRemember') ? $('#pubRemember').checked : true;
+  if (!repo || repo.indexOf('/') < 0){ pubMsg('Укажите репозиторий вида владелец/репозиторий', false); return; }
+  if (!token){ pubMsg('Нужен токен GitHub с правами на contents', false); return; }
+
+  var snap = buildPublicSnapshot();
+  var text = JSON.stringify(snap, null, 2);
+  var content = btoa(unescape(encodeURIComponent(text)));
+  var api = 'https://api.github.com/repos/' + repo + '/contents/' + encodeURI(path);
+  var headers = { 'Authorization': 'Bearer ' + token, 'Accept': 'application/vnd.github+json' };
+
+  pubMsg('Публикую…', true);
+  fetch(api + '?ref=' + encodeURIComponent(branch), { headers: headers, cache: 'no-store' })
+    .then(function(r){ return r.ok ? r.json() : null; })
+    .then(function(cur){
+      var body = { message: 'Публичный слепок досок для гостей', content: content, branch: branch };
+      if (cur && cur.sha) body.sha = cur.sha;
+      return fetch(api, { method: 'PUT', headers: headers, body: JSON.stringify(body) });
+    })
+    .then(function(r){
+      if (!r.ok) return r.text().then(function(t){ throw new Error('GitHub ' + r.status + ': ' + t.slice(0, 160)); });
+      return r.json();
+    })
+    .then(function(){
+      if (remember) saveGitCfg({ repo: repo, branch: branch, path: path, token: token });
+      pubMsg('Готово: слепок отправлен. GitHub Pages обновится примерно через минуту.', true);
+      toast('Слепок опубликован');
+      publicSnapshot = snap;
+    })
+    .catch(function(e){
+      pubMsg('Не получилось: ' + e.message + ' (токен должен иметь доступ к contents репозитория)', false);
+    });
 }
 
 function applyVisSpec(spec, value){
@@ -4493,6 +4701,16 @@ function settingsClick(e){
   if (e.target.closest('#fxSwitch')){
     patchPrefs(function(p){ p.particles.enabled = !p.particles.enabled; });
     renderSettings();
+    return;
+  }
+
+  var pubBtn = e.target.closest('[data-pub]');
+  if (pubBtn){
+    var act = pubBtn.getAttribute('data-pub');
+    if (act === 'download') downloadPublicSnapshot();
+    else if (act === 'copy') copyPublicSnapshot();
+    else if (act === 'publish') publishPublicSnapshot();
+    else if (act === 'forget'){ saveGitCfg({}); var tok = $('#pubToken'); if (tok) tok.value = ''; pubMsg('Токен удалён из этого браузера', true); }
     return;
   }
 
@@ -4743,6 +4961,9 @@ window.OmniBoard = {
   getMode: function(){ return currentUser ? (isAdminUser(currentUser) ? 'admin' : 'user') : 'guest'; },
   guestState: function(){ return JSON.parse(JSON.stringify(buildGuestState())); },
   accessDialog: accessDialog,
+  buildPublicSnapshot: buildPublicSnapshot,
+  applyPublicSnapshot: applyPublicSnapshot,
+  fetchPublicSnapshot: fetchPublicSnapshot,
   toggleGuestAccess: toggleGuestAccess,
   sha256Hex: function(str){ return bytesToHex(sha256(utf8Bytes(str))); },
   pbkdf2Hex: pbkdf2Hex
@@ -4753,17 +4974,23 @@ window.OmniBoard = {
   Fx.init();
   ensureDefaultAccount();
   var sess = readSession();
+  var found = null;
   if (sess){
-    var found = null;
     readAuth().users.forEach(function(u){ if (u.id === sess.uid) found = u; });
-    if (found){
-      currentUser = { id: found.id, login: found.login, name: found.name, role: found.role === 'admin' ? 'admin' : 'user', defaultPw: !!found.defaultPw };
-      enterApp();
-      return;
-    }
-    clearSession();
+    if (!found) clearSession();
   }
-  enterGuest();
+  if (found){
+    currentUser = { id: found.id, login: found.login, name: found.name, role: found.role === 'admin' ? 'admin' : 'user', defaultPw: !!found.defaultPw };
+    enterApp();
+  } else {
+    enterGuest();
+  }
+  /* публичный слепок подгружается после первого кадра: файла может и не быть */
+  fetchPublicSnapshot().then(function(snap){
+    if (!snap) return;
+    var already = state.boards.some(function(b){ return b._snapshot && b._foreign; });
+    if (!already) applyPublicSnapshot(snap);
+  });
 })();
 
 })();
