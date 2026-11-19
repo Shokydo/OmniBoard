@@ -432,11 +432,109 @@ body.panning .card{cursor:grabbing}
 }
 @media (max-width:560px){
   .search{display:none}
+  .guest-badge{display:none!important}
+  #boardStat{display:none}
   .topbar{padding:8px 10px;gap:6px}
   .board{padding:12px 10px}
   .board-name{font-size:14px;max-width:150px}
   .list{flex-basis:82vw}
 }
+
+/* ================= ГОСТЬ И ДОСТУП ================= */
+#loginBtn{display:none;height:32px;padding:0 14px;align-items:center}
+#accessBoardBtn{display:none}
+body.is-admin #accessBoardBtn{display:grid}
+body.guest-mode #loginBtn{display:inline-flex}
+.guest-badge{display:none;align-items:center;gap:6px;white-space:nowrap}
+.pill{white-space:nowrap}
+body.guest-mode .guest-badge{display:inline-flex}
+body.guest-mode #userChip,
+body.guest-mode #prefsBtn,
+body.guest-mode #exportBtn,
+body.guest-mode #newBoardBtn,
+body.guest-mode .side-foot,
+body.ro #addListTop,
+body.ro #accessBoardBtn,
+body.ro .bi-del,
+body.ro .bi-eye,
+body.ro .add-list,
+body.ro .add-card,
+body.ro .list .drag-handle,
+body.ro [data-act="del-list"],
+body.ro .list-eye,
+body.ro .toolbar,
+body.ro .node-actions,
+body.ro .node-tools,
+body.ro .drop,
+body.ro .shot .del,
+body.ro .ex-actions,
+body.ro [data-act="add-sub"],
+body.ro [data-act="del-task"],
+body.ro [data-act="pick-images"],
+body.ro [data-act="add-example"],
+body.ro [data-act="card-access"],
+body.ro .kbd-hint,
+body.ro .empty-hint{display:none!important}
+body.ro .editor,
+body.ro .sheet-title,
+body.ro .node-title,
+body.ro .list-title,
+body.ro .board-name,
+body.ro .check input{pointer-events:none}
+body.ro .card{cursor:pointer}
+body.ro .sheet .node-tools{margin-top:0}
+.bi-eye,
+.list-eye{width:20px;height:20px;flex:0 0 auto;display:grid;place-items:center;border-radius:6px;color:var(--muted)}
+.bi-eye{opacity:.5;transition:.12s}
+.bi-eye.on,.list-eye.on{opacity:1;color:var(--text)}
+.bi-eye:hover,.list-eye:hover{background:var(--panel-3);color:var(--text);opacity:1}
+.list-eye{margin-left:2px}
+.acc-row{display:flex;align-items:center;gap:10px;padding:9px 11px;border:1px solid var(--line);border-radius:10px;margin-bottom:7px;background:var(--panel-2)}
+.acc-row .acc-name{flex:1;min-width:0;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.acc-row .acc-sub{font-size:11.5px;color:var(--muted)}
+.acc-row .check{margin:0}
+label.acc-row>input[type="checkbox"],
+.acc-cell>input[type="checkbox"]{
+  appearance:none;-webkit-appearance:none;width:16px;height:16px;margin:0;border-radius:4px;position:relative;
+  border:1.5px solid var(--line-2);background:transparent;cursor:pointer;transition:.12s;flex:0 0 auto;display:block;
+}
+label.acc-row>input[type="checkbox"]:hover,
+.acc-cell>input[type="checkbox"]:hover{border-color:var(--text-2)}
+label.acc-row>input[type="checkbox"]:checked,
+.acc-cell>input[type="checkbox"]:checked{background:var(--solid);border-color:var(--solid)}
+label.acc-row>input[type="checkbox"]:checked::after,
+.acc-cell>input[type="checkbox"]:checked::after{
+  content:"";position:absolute;left:4px;top:1px;width:4.5px;height:8.5px;
+  border:solid var(--solid-text);border-width:0 2px 2px 0;transform:rotate(40deg);pointer-events:none;
+}
+label.acc-row>input[type="checkbox"]:disabled,
+.acc-cell>input[type="checkbox"]:disabled{opacity:.35;cursor:default}
+.acc-scroll{border:1px solid var(--line);border-radius:12px;padding:6px 8px;background:var(--panel-2)}
+.prefs-body > .acc-scroll,
+.prefs-body > .acc-grid{grid-column:1 / -1}
+.acc-head{display:flex;align-items:center;gap:10px;padding:0 2px 8px;color:var(--muted);font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;font-weight:600}
+.acc-grid{display:grid;gap:2px;align-items:center}
+.acc-grid .acc-cell{display:grid;place-items:center;padding:6px 2px}
+.acc-grid .acc-label{min-width:0;font-size:13px;display:flex;align-items:center;gap:8px;padding:6px 0}
+.acc-grid .acc-label .t{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.acc-grid .acc-label .n{font-size:11px;color:var(--muted);flex:0 0 auto}
+.acc-grid .acc-label.l1{padding-left:16px;color:var(--text-2)}
+.acc-grid .acc-label.l2{padding-left:32px;font-size:12.5px;color:var(--muted)}
+.acc-grid .acc-cell.head{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;font-weight:600;overflow:hidden}
+.acc-grid .acc-cell.head.you{color:var(--text-2)}
+.acc-col-head{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:70px;text-align:center}
+.dialog-card .acc-row{margin-bottom:6px}
+body.guest-mode .auth{background:rgba(0,0,0,.68);backdrop-filter:blur(7px)}
+html[data-theme="light"] body.guest-mode .auth{background:rgba(38,44,50,.46)}
+.auth-card{position:relative}
+.auth-close{position:absolute;top:12px;right:12px}
+.auth-guest{display:none;margin-top:10px;width:100%}
+body.guest-mode .auth-guest{display:block}
+.board-owner{font-size:10.5px;color:var(--muted);margin-left:6px;flex:0 0 auto}
+
+.pill-dim{color:var(--muted);border-color:var(--line)}
+.board-empty{max-width:460px;margin:8px 0 0;padding:22px;border:1px dashed var(--line-2);border-radius:14px;color:var(--text-2);font-size:13.5px;line-height:1.7;background:var(--panel)}
+.side-empty{padding:10px 12px;color:var(--muted);font-size:12.5px;line-height:1.6}
 
 /* ================= СЛОИ ФОНА И СНЕГ ================= */
 .app{position:relative;z-index:1}
@@ -681,16 +779,21 @@ input[type="color"]{
       </button>
       <input class="board-name" id="boardName" value="Доска" aria-label="Название доски">
       <span class="pill" id="boardStat">0 задач</span>
+      <span class="pill guest-badge" id="guestBadge">гость · только чтение</span>
       <div class="top-spacer"></div>
       <label class="search">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
         <input id="searchInput" placeholder="Поиск по доске" aria-label="Поиск">
       </label>
       <button class="btn" id="addListTop">+ Список</button>
+      <button class="icon-btn" id="accessBoardBtn" title="Доступ к доске: гости и пользователи">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12Z"/><circle cx="12" cy="12" r="2.6"/></svg>
+      </button>
       <button class="btn user-chip" id="userChip" title="Аккаунт">
         <span class="avatar" id="userAvatar">?</span>
         <span class="user-name" id="userName">—</span>
       </button>
+      <button class="btn solid" id="loginBtn" title="Войти в аккаунт">Войти</button>
     </header>
     <div class="board" id="board">
       <div class="lists" id="lists"></div>
@@ -776,9 +879,31 @@ function load(){
   } catch (e) { storageOK = false; return false; }
 }
 
+function collectTreeTasks(t, keep){
+  if (!t || keep[t.id] || !state.tasks[t.id]) return;
+  keep[t.id] = true;
+  (t.subtasks || []).forEach(function(id){ collectTreeTasks(state.tasks[id], keep); });
+}
+function serializeOwn(){
+  var boards = state.boards.filter(function(b){ return !b._foreign; });
+  var keep = {};
+  boards.forEach(function(b){
+    (b.lists || []).forEach(function(l){
+      (l.cards || []).forEach(function(id){ collectTreeTasks(state.tasks[id], keep); });
+    });
+  });
+  var tasks = {};
+  Object.keys(keep).forEach(function(id){ if (state.tasks[id]) tasks[id] = state.tasks[id]; });
+  var active = boards.filter(function(b){ return b.id === state.activeBoard; })[0];
+  return { version: 2, theme: state.theme,
+           activeBoard: active ? active.id : (boards[0] ? boards[0].id : null),
+           boards: boards, tasks: tasks };
+}
+
 function saveNow(){
+  if (!currentUser || isReadOnlyBoard()) return;   /* гость и общие доски — только чтение */
   try {
-    storageOK = lsSet(dataKey(), JSON.stringify(state));
+    storageOK = lsSet(dataKey(), JSON.stringify(serializeOwn()));
   } catch (e) {
     storageOK = false;
     if (!noStorageNotified){
@@ -792,6 +917,57 @@ const save = debounce(saveNow, 250);
 /* ======================= МОДЕЛЬ ======================= */
 const T = (id) => state.tasks[id] || null;
 const board = () => state.boards.find(b => b.id === state.activeBoard) || null;
+
+/* ======================= ДОСТУП: ГОСТИ И ПОЛЬЗОВАТЕЛИ ======================= */
+function isAdminUser(u){ return !!(u && u.role === 'admin'); }
+function isGuest(){ return !currentUser; }
+function accessOf(o){ return (o && o.access && typeof o.access === 'object') ? o.access : null; }
+function normalizeAccess(o){
+  if (!o.access || typeof o.access !== 'object') o.access = { guest: false, users: {} };
+  if (!o.access.users || typeof o.access.users !== 'object') o.access.users = {};
+  return o.access;
+}
+function ensureAccess(o, inheritedGuest){
+  var isNew = !accessOf(o);
+  var acc = normalizeAccess(o);
+  if (isNew) acc.guest = !!inheritedGuest;
+  return acc;
+}
+function canSee(access, user){
+  if (!user) return !!(access && access.guest === true);      /* гость видит только явно открытое */
+  if (isAdminUser(user)) return true;                          /* администратор видит всё */
+  return !(access && access.users && access.users[user.id] === false);
+}
+function chainAccessIn(tasks, t, fallback){
+  var cur = t, guard = 0;
+  while (cur && guard++ < 300){
+    var a = accessOf(cur);
+    if (a) return a;
+    cur = cur.parentId ? tasks[cur.parentId] : null;
+  }
+  return fallback || null;
+}
+function chainAccess(t, fallback){ return chainAccessIn(state.tasks, t, fallback); }
+function boardVisible(b, user){ return canSee(accessOf(b), user); }
+function listVisible(b, l, user){ return canSee(accessOf(l) || accessOf(b), user); }
+function taskListOf(t){
+  var b = board(); if (!b || !t) return null;
+  var root = t, guard = 0;
+  while (root && root.parentId && state.tasks[root.parentId] && guard++ < 300) root = state.tasks[root.parentId];
+  for (var i = 0; i < b.lists.length; i++){
+    if (b.lists[i].cards.indexOf(root.id) > -1) return b.lists[i];
+  }
+  return null;
+}
+function taskCtxAccess(t){
+  var l = taskListOf(t), b = board();
+  return (l && accessOf(l)) || accessOf(b);
+}
+function taskVisible(t, l, b, user){
+  if (!t) return false;
+  var fallback = (l && accessOf(l)) || (b && accessOf(b)) || taskCtxAccess(t);
+  return canSee(chainAccess(t, fallback), user);
+}
 
 function depthOf(t){
   let d = 0, cur = t, guard = 0;
@@ -809,6 +985,7 @@ function stats(t){
   let total = 0, done = 0;
   (t.subtasks || []).forEach(id => {
     const c = state.tasks[id]; if (!c) return;
+    if (!taskVisible(c, null, null, currentUser)) return;
     const s = stats(c);
     total += 1 + s.total;
     done += (c.done ? 1 : 0) + s.done;
@@ -966,6 +1143,128 @@ function seed(){
 }
 
 /* ======================= ТОСТЫ И ДИАЛОГИ ======================= */
+/* ======================= ГОСТЕВОЙ РЕЖИМ ======================= */
+function readUserData(id){
+  try {
+    var raw = lsGet(LS_PREFIX_DATA + id);
+    if (!raw) return null;
+    var d = JSON.parse(raw);
+    if (!d || !Array.isArray(d.boards) || typeof d.tasks !== 'object') return null;
+    return d;
+  } catch (e){ return null; }
+}
+
+function copySharedTask(tasks, id, dest, fallback, viewer){
+  var t = tasks[id];
+  if (!t || !dest || dest[id]) return;
+  var copy = JSON.parse(JSON.stringify(t));
+  copy.subtasks = (t.subtasks || []).filter(function(cid){
+    var c = tasks[cid];
+    return c && c.parentId === id && canSee(chainAccessIn(tasks, c, fallback), viewer);
+  });
+  dest[id] = copy;
+  copy.subtasks.forEach(function(cid){ copySharedTask(tasks, cid, dest, fallback, viewer); });
+}
+
+/* viewer === null — гость; иначе пользователь, которому открыли общие доски */
+function buildSharedState(viewer){
+  var out = { version: 2, activeBoard: null, boards: [], tasks: {} };
+  var skipId = viewer ? viewer.id : null;
+  readAuth().users.forEach(function(u){
+    if (skipId && u.id === skipId) return;
+    var d = readUserData(u.id);
+    if (!d) return;
+    var tasks = d.tasks || {};
+    (d.boards || []).forEach(function(b){
+      var acc = accessOf(b);
+      if (!acc) return;
+      if (viewer){
+        if (acc.users && acc.users[viewer.id] === false) return;
+        if (!(acc.guest === true || (acc.users && acc.users[viewer.id] === true))) return;
+      } else if (acc.guest !== true) return;
+
+      var nb = { id: b.id, title: b.title, created: b.created, access: acc,
+                 owner: u.name || u.login, _ownerId: u.id, _foreign: true, lists: [] };
+      (b.lists || []).forEach(function(l){
+        var lAcc = accessOf(l) || acc;
+        if (!canSee(lAcc, viewer)) return;
+        var nl = { id: l.id, title: l.title, access: accessOf(l), cards: [] };
+        (l.cards || []).forEach(function(id){
+          var t = tasks[id];
+          if (!t || out.tasks[id]) return;
+          if (!canSee(chainAccessIn(tasks, t, lAcc), viewer)) return;
+          copySharedTask(tasks, id, out.tasks, lAcc, viewer);
+          nl.cards.push(id);
+        });
+        nl.cards = nl.cards.filter(function(id){ return !!out.tasks[id]; });
+        nb.lists.push(nl);
+      });
+      out.boards.push(nb);
+    });
+  });
+  return out;
+}
+
+function buildGuestState(){ return buildSharedState(null); }
+
+/* подмешать общие доски других аккаунтов к своим (только чтение) */
+function mergeShared(user){
+  if (!user) return;
+  var pool = buildSharedState(user);
+  var have = {};
+  state.boards.forEach(function(b){ have[b.id] = true; });
+  pool.boards.forEach(function(b){
+    if (have[b.id]) return;
+    b.lists.forEach(function(l){
+      l.cards = l.cards.filter(function(id){ return !!pool.tasks[id]; });
+    });
+    state.boards.push(b);
+  });
+  Object.keys(pool.tasks).forEach(function(id){
+    if (!state.tasks[id]) state.tasks[id] = pool.tasks[id];
+  });
+}
+
+function isReadOnlyBoard(){
+  var b = board();
+  return !!(b && b._foreign);
+}
+function isReadOnly(){ return !currentUser || isReadOnlyBoard(); }
+
+function enterGuest(){
+  currentUser = null;
+  document.body.classList.remove('auth-mode');
+  document.body.classList.add('guest-mode');
+  var ah = $('#authHost');
+  if (ah) ah.innerHTML = '';
+  loadPrefs();
+  state = buildSharedState(null);
+  var demo = false;
+  if (!state.boards.length){
+    demo = true;
+    state = { version: 2, activeBoard: null, boards: [], tasks: {} };
+    seed();
+    state.boards.forEach(function(b){ b.access = { guest: true, users: {} }; });
+  }
+  state.guestDemo = demo;
+  mergeShared(currentUser);
+  if (!state.activeBoard && state.boards[0]) state.activeBoard = state.boards[0].id;
+  var cur = board();
+  if (!cur || !boardVisible(cur, currentUser)){
+    var firstVisible = state.boards.filter(function(b){ return boardVisible(b, currentUser); })[0];
+    state.activeBoard = firstVisible ? firstVisible.id : null;
+  }
+  if (!appBound){ appBound = true; bindGlobal(); }
+  renderModeUI();
+  applyPrefs();
+  renderAll();
+  renderAccountChip();
+  var badge = $('#guestBadge');
+  if (badge) badge.title = demo
+    ? 'Показана демонстрационная доска: пока ни одна доска не открыта для гостей'
+    : 'Гостям показаны только доски и задачи, открытые администратором';
+}
+
 let toastTimer = null;
 function toast(msg, ms){
   const el = $('#toast');
@@ -1024,6 +1323,129 @@ function askText(opts){
   });
 }
 
+/* ======================= ДОСТУП: ДИАЛОГИ ======================= */
+function findListAnywhere(id){
+  for (var i = 0; i < state.boards.length; i++){
+    for (var j = 0; j < state.boards[i].lists.length; j++){
+      if (state.boards[i].lists[j].id === id) return state.boards[i].lists[j];
+    }
+  }
+  return null;
+}
+
+function accessObject(kind, id){
+  if (kind === 'board') return state.boards.filter(function(b){ return b.id === id; })[0] || null;
+  if (kind === 'list') return findListAnywhere(id);
+  if (kind === 'card') return T(id);
+  return null;
+}
+
+function refreshAfterAccess(){
+  save();
+  renderSidebar();
+  renderBoard();
+  if (openTaskId) renderModal();
+  var scr = $('#prefsScreen');
+  if (scr && scr.getAttribute('data-tab') === 'access') renderSettings();
+}
+
+function accessDialog(kind, id){
+  if (!isAdminUser(currentUser)){ if (!currentUser) showAuth(true); return; }
+  var o = accessObject(kind, id);
+  if (!o) return;
+  var inherited = kind === 'board' ? false
+    : kind === 'list' ? canSee(accessOf(board()), null)
+    : canSee(chainAccess(o, taskCtxAccess(o)), null);
+  var acc = ensureAccess(o, inherited);
+  var titles = { board: 'доска', list: 'список', card: 'задача' };
+  var users = readAuth().users;
+  var rows = users.map(function(u){
+    var on = acc.users[u.id] !== false;
+    var admin = isAdminUser(u);
+    return '<label class="acc-row"><span class="acc-name">' + esc(u.name || u.login) +
+        ' <span class="acc-sub">@' + esc(u.login) + (admin ? ' · администратор' : '') + '</span></span>' +
+      '<input type="checkbox" data-accu="' + esc(u.id) + '"' + (on ? ' checked' : '') + (admin ? ' disabled' : '') + '></label>';
+  }).join('');
+
+  var host = $('#dialogHost');
+  host.innerHTML = '<div class="dialog"><div class="dialog-card" style="max-width:470px">' +
+    '<h3>Доступ · ' + (titles[kind] || 'объект') + '</h3>' +
+    '<p>' + esc(o.title || 'Без названия') + '</p>' +
+    '<label class="acc-row"><span class="acc-name">Гости <span class="acc-sub">без входа в аккаунт</span></span>' +
+      '<input type="checkbox" data-accg="1"' + (acc.guest ? ' checked' : '') + '></label>' +
+    '<div class="acc-head" style="padding-top:8px">Пользователи</div>' + rows +
+    '<div class="prefs-hint" style="margin-top:8px">Гости видят только доски, списки и задачи с открытым доступом. ' +
+      'Администратор видит всё. Скрытое наследуется вложенными задачами.</div>' +
+    '<div class="dialog-actions"><button class="btn solid" data-r="1">Готово</button></div>' +
+    '</div></div>';
+
+  var overlay = host.firstChild;
+  overlay.addEventListener('change', function(e){
+    var g = e.target.closest('[data-accg]');
+    var u = e.target.closest('[data-accu]');
+    if (g) acc.guest = !!g.checked;
+    else if (u) acc.users[u.getAttribute('data-accu')] = !!u.checked;
+    else return;
+    refreshAfterAccess();
+  });
+  overlay.addEventListener('click', function(e){
+    if (e.target.closest('[data-r]') || e.target === overlay) closeDialog();
+  });
+}
+
+function toggleGuestAccess(kind, id){
+  if (!isAdminUser(currentUser)) return;
+  var o = accessObject(kind, id);
+  if (!o) return;
+  var inherited = kind === 'board' ? false
+    : kind === 'list' ? canSee(accessOf(board()), null)
+    : canSee(chainAccess(o, taskCtxAccess(o)), null);
+  var acc = ensureAccess(o, inherited);
+  acc.guest = !acc.guest;
+  refreshAfterAccess();
+  toast(acc.guest ? 'Открыто гостям' : 'Скрыто от гостей');
+}
+
+function boardDialog(){
+  if (!currentUser) return;
+  var host = $('#dialogHost');
+  host.innerHTML = '<div class="dialog"><div class="dialog-card">' +
+    '<h3>Новая доска</h3>' +
+    '<input class="io-input" id="nbTitle" placeholder="Например: Маркетинг" ' +
+      'style="width:100%;background:var(--bg);border:1px solid var(--line-2);border-radius:10px;padding:9px 11px;font-size:13.5px;margin-bottom:12px">' +
+    '<label class="acc-row" style="margin-bottom:10px"><span class="acc-name">Доступна гостям ' +
+      '<span class="acc-sub">просмотр без входа в аккаунт</span></span><input type="checkbox" id="nbGuest"></label>' +
+    '<div class="prefs-hint">Списки и отдельные задачи можно открыть или скрыть позже — кнопкой с глазом и в карточке задачи.</div>' +
+    '<div class="dialog-actions"><button class="btn" data-r="0">Отмена</button>' +
+    '<button class="btn solid" data-r="1">Создать</button></div></div></div>';
+  var overlay = host.firstChild;
+  var input = $('#nbTitle');
+  var guest = $('#nbGuest');
+  setTimeout(function(){ input.focus(); }, 30);
+  function create(){
+    var title = input.value.trim();
+    if (!title){ input.focus(); return; }
+    var b = { id: uid('b'), title: title, created: nowISO(),
+      access: { guest: !!guest.checked, users: {} },
+      lists: [
+        { id: uid('l'), title: 'Бэклог', cards: [] },
+        { id: uid('l'), title: 'В работе', cards: [] },
+        { id: uid('l'), title: 'Готово', cards: [] }
+      ]};
+    state.boards.push(b);
+    state.activeBoard = b.id;
+    closeDialog();
+    save(); renderSidebar(); renderBoard();
+    toast(guest.checked ? 'Доска создана и открыта гостям' : 'Доска создана');
+  }
+  overlay.addEventListener('click', function(e){
+    var b = e.target.closest('[data-r]');
+    if (b){ if (b.getAttribute('data-r') === '1') create(); else closeDialog(); }
+    else if (e.target === overlay) closeDialog();
+  });
+  input.addEventListener('keydown', function(e){ if (e.key === 'Enter'){ e.preventDefault(); create(); } });
+}
+
 /* ======================= ДОКУМЕНТ: ТЕМА ======================= */
 function applyTheme(){
   document.documentElement.setAttribute('data-theme', prefs ? prefs.theme : 'dark');
@@ -1033,36 +1455,64 @@ function applyTheme(){
 function renderSidebar(){
   const host = $('#boardList');
   host.innerHTML = '';
-  state.boards.forEach(b => {
+  const admin = isAdminUser(currentUser);
+  state.boards.filter(b => boardVisible(b, currentUser)).forEach(b => {
     const row = document.createElement('div');
-    const count = b.lists.reduce((n, l) => n + l.cards.length, 0);
+    const count = b.lists.reduce((n, l) => n + l.cards.filter(id => T(id) && taskVisible(T(id), l, b, currentUser)).length, 0);
+    const guestOn = canSee(accessOf(b), null);
     row.className = 'board-item' + (b.id === state.activeBoard ? ' active' : '');
     row.dataset.board = b.id;
     row.innerHTML = '<span class="bi-name"></span><span class="bi-count"></span>' +
-      '<button class="bi-del" data-act="del-board" title="Удалить доску">✕</button>';
+      (b.owner && b._foreign ? '<span class="board-owner"></span>' : '') +
+      (admin ? '<button class="bi-eye' + (guestOn ? ' on' : '') + '" data-act="board-guest" title="' +
+        (guestOn ? 'Доска видна гостям — скрыть' : 'Доска скрыта от гостей — открыть') + '">' +
+        (guestOn ? ICON.eye : ICON.eyeOff) + '</button>' : '') +
+      (currentUser ? '<button class="bi-del" data-act="del-board" title="Удалить доску">✕</button>' : '');
     row.querySelector('.bi-name').textContent = b.title;
     row.querySelector('.bi-count').textContent = count;
+    if (b.owner && b._foreign){
+      const ow = row.querySelector('.board-owner');
+      if (ow) ow.textContent = b.owner;
+      row.title = 'Общая доска пользователя ' + b.owner + ' — только чтение';
+    }
     host.appendChild(row);
   });
+  if (!host.children.length){
+    const empty = document.createElement('div');
+    empty.className = 'side-empty';
+    empty.textContent = currentUser
+      ? 'Досок нет — создайте первую.'
+      : 'Гостям пока не открыто ни одной доски.';
+    host.appendChild(empty);
+  }
 }
 
 /* ======================= РЕНДЕР: ДОСКА ======================= */
 function renderBoard(){
+  renderModeUI();
   const b = board();
   const nameInput = $('#boardName');
+  nameInput.readOnly = isReadOnly();
   if (document.activeElement !== nameInput) nameInput.value = b ? b.title : '';
 
   const host = $('#lists');
   host.innerHTML = '';
   if (!b){
     $('#boardStat').textContent = 'нет досок';
+    const hint = document.createElement('div');
+    hint.className = 'board-empty';
+    hint.innerHTML = currentUser
+      ? 'Досок пока нет. Нажмите <b>+ Список</b> или создайте доску в левом меню.'
+      : 'Гостям пока не открыто ни одной доски.<br><span style="color:var(--muted)">Администратор может открыть доску для гостей кнопкой с глазом в списке досок.</span>';
+    host.appendChild(hint);
     return;
   }
-  const total = b.lists.reduce((n, l) => n + l.cards.length, 0);
+  const lists = b.lists.filter(l => listVisible(b, l, currentUser));
+  const total = lists.reduce((n, l) => n + l.cards.filter(id => T(id) && taskVisible(T(id), l, b, currentUser)).length, 0);
   $('#boardStat').textContent = total + ' ' + plural(total, ['задача', 'задачи', 'задач']);
 
   const q = searchQuery.trim().toLowerCase();
-  b.lists.forEach(l => host.appendChild(renderList(l, q)));
+  lists.forEach(l => host.appendChild(renderList(l, q)));
 
   const addBtn = document.createElement('button');
   addBtn.className = 'add-list';
@@ -1076,14 +1526,21 @@ function renderList(l, q){
   el.className = 'list';
   el.dataset.list = l.id;
 
-  const visible = l.cards.filter(id => { const t = T(id); return t && matches(t, q); });
+  const b = board();
+  const visible = l.cards.filter(id => { const t = T(id); return t && matches(t, q) && taskVisible(t, l, b, currentUser); });
+  const guestOn = canSee(accessOf(l) || accessOf(b), null);
 
   el.innerHTML =
     '<div class="list-head">' +
       '<span class="drag-handle" draggable="true" title="Перетащить список">⋮⋮</span>' +
-      '<input class="list-title" value="' + esc(l.title) + '" aria-label="Название списка">' +
+      '<input class="list-title" value="' + esc(l.title) + '" aria-label="Название списка"' + (isReadOnly() ? ' readonly' : '') + '>' +
       '<span class="list-count">' + visible.length + '</span>' +
-      '<button class="icon-btn sm" data-act="del-list" title="Удалить список">✕</button>' +
+      (isAdminUser(currentUser)
+        ? '<button class="icon-btn sm list-eye' + (guestOn ? ' on' : '') + '" data-act="list-guest" data-id="' + l.id + '" title="' +
+          (guestOn ? 'Список виден гостям — скрыть' : 'Список скрыт от гостей — открыть') + '">' +
+          (guestOn ? ICON.eye : ICON.eyeOff) + '</button>'
+        : '') +
+      (currentUser ? '<button class="icon-btn sm" data-act="del-list" title="Удалить список">✕</button>' : '') +
     '</div>' +
     '<div class="cards" data-list="' + l.id + '"></div>' +
     '<button class="add-card" data-act="add-card">＋ Добавить задачу</button>';
@@ -1103,6 +1560,7 @@ function isInteractiveEl(el){
 }
 
 function onPointerDown(e){
+  if (isReadOnly()) return;                    /* гостям и общим доскам перетаскивание недоступно */
   if (e.button !== 0 || openTaskId) return;
   if ($('#dialogHost') && $('#dialogHost').innerHTML) return;
   const handle = e.target.closest('.drag-handle');
@@ -1350,6 +1808,7 @@ function renderCard(t){
   cb.type = 'checkbox';
   cb.checked = !!t.done;
   cb.dataset.act = 'toggle-card';
+  if (isReadOnly()) cb.disabled = true;
   check.appendChild(cb);
   top.appendChild(check);
   top.appendChild(title);
@@ -1390,6 +1849,7 @@ function renderCard(t){
 
 /* ======================= СОБЫТИЯ ДОСКИ ======================= */
 function addList(){
+  if (isReadOnly()) return;
   const b = board(); if (!b) return;
   const l = { id: uid('l'), title: 'Новый список', cards: [] };
   b.lists.push(l);
@@ -1399,6 +1859,7 @@ function addList(){
 }
 
 function showAddCardForm(listEl, listId){
+  if (isReadOnly()) return;
   const existing = listEl.querySelector('.add-card-form');
   if (existing){ existing.querySelector('textarea').focus(); return; }
   const form = document.createElement('div');
@@ -1539,6 +2000,8 @@ function crumbsHTML(t){
 
 /* --- иконки (инлайн-SVG: не зависят от шрифтов) --- */
 var ICON = {
+  eye: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12Z"/><circle cx="12" cy="12" r="2.6"/></svg>',
+  eyeOff: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M4 4l16 16"/><path d="M9.6 6.1A10.9 10.9 0 0 1 12 5.5c6.4 0 10 6.5 10 6.5a17 17 0 0 1-3.3 4.1M6.2 7.7A17 17 0 0 0 2 12s3.6 6.5 10 6.5c1 0 1.9-.2 2.8-.4"/><path d="M10.1 10.2a2.6 2.6 0 0 0 3.6 3.6"/></svg>',
   image: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>',
   quote: '<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M7 7h4v4.2c0 2.2-1.7 3.9-3.9 3.9v-1.9c1.1 0 2-.9 2-2H7V7Zm7 0h4v4.2c0 2.2-1.7 3.9-3.9 3.9v-1.9c1.1 0 2-.9 2-2H14V7Z"/></svg>',
   check: '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m4 12.5 5 5L20 6.5"/></svg>',
@@ -1645,7 +2108,7 @@ function nodeHTML(t, level){
       '</div>' +
       galleryHTML(t) +
       examplesHTML(t, true) +
-      '<div class="node-children">' + t.subtasks.map(id => T(id) ? nodeHTML(T(id), level + 1) : '').join('') + '</div>' +
+      '<div class="node-children">' + t.subtasks.map(id => (T(id) && taskVisible(T(id), null, null, currentUser)) ? nodeHTML(T(id), level + 1) : '').join('') + '</div>' +
       '<button class="btn sm" data-act="add-sub" data-id="' + t.id + '">＋ Вложенная задача</button>' +
       '</div>';
   }
@@ -1672,6 +2135,11 @@ function renderModal(){
         '<span class="pill">подзадачи <b>' + s.done + '/' + s.total + '</b></span>' +
         '<span class="pill">изображения <b>' + t.images.length + '</b></span>' +
         '<span class="pill">примеры <b>' + t.examples.length + '</b></span>' +
+        (isAdminUser(currentUser)
+          ? '<span class="pill' + (canSee(chainAccess(t, taskCtxAccess(t)), null) ? '' : ' pill-dim') + '">' +
+            (canSee(chainAccess(t, taskCtxAccess(t)), null) ? 'видна гостям' : 'скрыта от гостей') + '</span>' +
+            '<button class="btn sm" data-act="card-access" data-id="' + t.id + '">Доступ</button>'
+          : '') +
         '<span style="flex:1"></span>' +
         '<button class="btn sm" data-act="add-sub">＋ Подзадача</button>' +
         '<button class="btn sm danger" data-act="del-task">Удалить</button>' +
@@ -1684,7 +2152,7 @@ function renderModal(){
       '<div class="section">' +
         '<div class="sec-head"><span class="sec-title">Подзадачи</span><div class="sec-line"></div>' +
           '<span class="node-prog">' + s.done + '/' + s.total + '</span></div>' +
-        '<div class="node-children">' + t.subtasks.map(id => T(id) ? nodeHTML(T(id), 1) : '').join('') + '</div>' +
+        '<div class="node-children">' + t.subtasks.map(id => (T(id) && taskVisible(T(id), null, null, currentUser)) ? nodeHTML(T(id), 1) : '').join('') + '</div>' +
         (t.subtasks.length ? '' : '<div class="empty-hint">Пока пусто. Разбейте задачу на шаги — у каждого шага могут быть свои шаги.</div>') +
         '<button class="btn sm" data-act="add-sub" style="margin-top:8px">＋ Добавить подзадачу</button>' +
         (t.subtasks.length
@@ -1696,6 +2164,10 @@ function renderModal(){
     '</article></div>';
 
   const overlay = $('#overlay');
+  if (isReadOnly()){
+    $$('[contenteditable]', overlay).forEach(function(el){ el.setAttribute('contenteditable', 'false'); });
+    $$('input, textarea', overlay).forEach(function(el){ el.readOnly = true; if (el.type === 'checkbox') el.disabled = true; });
+  }
   const body = overlay.querySelector('.sheet-body');
   body.scrollTop = prevScroll;
   autoGrow($('.sheet-title'));
@@ -1928,6 +2400,9 @@ function closeTask(){
 }
 
 function openTask(id, opts){
+  if (!T(id)) return;
+  if (!currentUser && !taskVisible(T(id), null, null, null)) return;
+  if (currentUser && !taskVisible(T(id), null, null, currentUser)){ toast('Задача скрыта для вашего аккаунта'); return; }
   const t = T(id);
   if (!t) return;
   if (!opts || opts.push !== false){
@@ -2333,6 +2808,18 @@ function boardToMarkdown(b){
 }
 
 function exportMarkdown(){
+  var foreign = state.boards.filter(function(b){ return b._foreign; });
+  if (foreign.length){
+    var saved = state.boards;
+    state.boards = saved.filter(function(b){ return !b._foreign; });
+    var res = exportMarkdownOwn();
+    state.boards = saved;
+    return res;
+  }
+  return exportMarkdownOwn();
+}
+
+function exportMarkdownOwn(){
   if (!state.boards.length) return '';
   return state.boards.map(boardToMarkdown).join('\n---\n\n');
 }
@@ -2359,7 +2846,8 @@ function importMarkdown(text, replace, fileName){
 /* ---------- диалог ---------- */
 function ioDialog(tab){
   var host = $('#dialogHost');
-  var json = JSON.stringify({ boards: state.boards, tasks: state.tasks, activeBoard: state.activeBoard, prefs: prefs }, null, 2);
+  var own = serializeOwn();
+  var json = JSON.stringify({ boards: own.boards, tasks: own.tasks, activeBoard: own.activeBoard, prefs: prefs }, null, 2);
   var md = exportMarkdown();
   var current = tab || 'json';
 
@@ -2523,19 +3011,23 @@ function bindGlobal(){
 
   $('#exportBtn').addEventListener('click', function(){ ioDialog('json'); });
 
-  $('#newBoardBtn').addEventListener('click', () => {
-    askText({ title: 'Новая доска', placeholder: 'Например: Маркетинг', ok: 'Создать' }).then(title => {
-      if (!title) return;
-      const b = { id: uid('b'), title: title, created: nowISO(), lists: [
-        { id: uid('l'), title: 'Бэклог', cards: [] },
-        { id: uid('l'), title: 'В работе', cards: [] },
-        { id: uid('l'), title: 'Готово', cards: [] }
-      ]};
-      state.boards.push(b);
-      state.activeBoard = b.id;
-      save(); renderSidebar(); renderBoard();
-      toast('Доска создана');
-    });
+  $('#newBoardBtn').addEventListener('click', () => boardDialog());
+
+  var loginBtn = $('#loginBtn');
+  if (loginBtn) loginBtn.addEventListener('click', function(){ closeAccountMenu(); showAuth(true); });
+
+  var accBoardBtn = $('#accessBoardBtn');
+  if (accBoardBtn) accBoardBtn.addEventListener('click', function(){
+    if (!currentUser){ showAuth(true); return; }
+    var b = board();
+    if (b) accessDialog('board', b.id);
+  });
+
+  document.addEventListener('click', function(e){
+    var lg = e.target.closest('[data-act="list-guest"]');
+    if (lg){ e.preventDefault(); e.stopPropagation(); toggleGuestAccess('list', lg.getAttribute('data-id')); return; }
+    var ca = e.target.closest('[data-act="card-access"]');
+    if (ca){ e.preventDefault(); e.stopPropagation(); accessDialog('card', ca.getAttribute('data-id')); return; }
   });
 
   $('#addListTop').addEventListener('click', addList);
@@ -2565,6 +3057,7 @@ function bindGlobal(){
     if (!row) return;
     const b = state.boards.find(x => x.id === row.dataset.board);
     if (!b) return;
+    if (e.target.closest('[data-act="board-guest"]')){ toggleGuestAccess('board', b.id); return; }
     if (del){
       askConfirm({ title: 'Удалить доску «' + b.title + '»?', text: 'Все списки и задачи доски будут удалены.', danger: true, ok: 'Удалить' })
         .then(ok => {
@@ -2599,6 +3092,7 @@ function bindGlobal(){
 
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape'){
+      if ($('#authScreen') && !document.body.contains($('#authScreen').closest('[hidden]'))){ hideAuth(); return; }
       if ($('#accountMenu')){ closeAccountMenu(); return; }
       const prefsHost = $('#prefsHost');
       if (prefsHost && prefsHost.innerHTML){ prefsHost.innerHTML = ''; return; }
@@ -3409,14 +3903,16 @@ function authError(msg, fieldId){
   if (fieldId){ var f = $('#' + fieldId); if (f) f.classList.add('bad'); }
 }
 
-function showAuth(){
+function showAuth(modal){
   var host = $('#authHost');
   if (!host) return;
-  document.body.classList.add('auth-mode');
+  if (!modal) document.body.classList.add('auth-mode');
+  else document.body.classList.remove('auth-mode');
   ensureDefaultAccount();
 
   host.innerHTML =
     '<div class="auth" id="authScreen"><div class="auth-card">' +
+      '<button class="icon-btn auth-close" id="authClose" title="Закрыть (Esc)">✕</button>' +
       '<div class="auth-brand">' +
         '<div class="brand-mark" role="img" aria-label="Shokydo"></div>' +
         '<div><div class="auth-title">OmniBoard</div><div class="auth-sub">доски задач</div></div>' +
@@ -3431,8 +3927,10 @@ function showAuth(){
         '<label class="checkline"><input type="checkbox" id="auRemember" checked> Запомнить меня на этом устройстве</label>' +
         '<button class="btn solid auth-submit" type="submit" id="authSubmit">Войти</button>' +
       '</form>' +
+      '<button class="btn auth-guest" id="authGuest">Продолжить без входа — смотреть как гость</button>' +
       '<div class="auth-note">Вход только для аккаунтов, созданных администратором. Пароль по умолчанию — ' +
         '<b>' + esc(DEFAULT_PASSWORD) + '</b>, смените его в настройках аккаунта после входа.<br>' +
+        'Гостям показываются только доски, списки и задачи, открытые администратором.<br>' +
         'Данные хранятся <b>только в этом браузере</b>, пароль — в виде хеша PBKDF2-SHA256 с солью.</div>' +
     '</div></div>';
 
@@ -3440,6 +3938,11 @@ function showAuth(){
   var passInput = $('#auPass');
   var loginInput = $('#auLogin');
   setTimeout(function(){ if (passInput) passInput.focus(); }, 60);
+
+  var closeBtn = $('#authClose');
+  if (closeBtn) closeBtn.addEventListener('click', function(){ hideAuth(); });
+  var guestBtn = $('#authGuest');
+  if (guestBtn) guestBtn.addEventListener('click', function(){ hideAuth(); });
 
   form.addEventListener('submit', function(e){
     e.preventDefault();
@@ -3468,7 +3971,25 @@ function signIn(user, greet){
   currentUser = { id: user.id, login: user.login, name: user.name, role: user.role === 'admin' ? 'admin' : 'user', defaultPw: !!user.defaultPw };
   hideAuth();
   enterApp();
+  renderModeUI();
   if (greet) toast(greet, 3000);
+}
+
+function renderModeUI(){
+  var guest = !currentUser;
+  var ro = isReadOnly();
+  document.body.classList.toggle('guest-mode', guest);
+  document.body.classList.toggle('is-admin', isAdminUser(currentUser));
+  document.body.classList.toggle('ro', ro);
+  var badge = $('#guestBadge');
+  if (badge){
+    var text = guest ? 'гость · только чтение' : (ro ? 'общая доска · только чтение' : '');
+    badge.textContent = text;
+    badge.style.display = text ? '' : 'none';
+    if (guest && state.guestDemo) badge.title = 'Показана демонстрационная доска: пока ни одна доска не открыта для гостей';
+    else if (guest) badge.title = 'Гостям показаны только доски и задачи, открытые администратором';
+    else if (ro) badge.title = 'Это доска другого аккаунта, открытая для просмотра';
+  }
 }
 
 function signOut(){
@@ -3476,14 +3997,14 @@ function signOut(){
   clearSession();
   currentUser = null;
   closePrefs();
+  closeTask();
   $('#dialogHost').innerHTML = '';
-  state = { version: 2, activeBoard: null, boards: [], tasks: {} };
   openTaskId = null;
-  renderSidebar();
-  renderBoard();
-  loadPrefs();
-  applyPrefs();
-  showAuth();
+  searchQuery = '';
+  var si = $('#searchInput'); if (si) si.value = '';
+  renderModeUI();
+  enterGuest();
+  toast('Вы вышли — открыт гостевой просмотр', 3000);
 }
 
 function renderAccountChip(){
@@ -3543,22 +4064,22 @@ function fmtDate(iso){
 }
 
 var settingsTab = 'look';
-var settingsScroll = { look: 0, fx: 0, account: 0, users: 0 };
+var settingsScroll = { look: 0, fx: 0, account: 0, users: 0, access: 0 };
 
 function settingsTabs(){
   var tabs = [['look', 'Оформление'], ['fx', 'Эффекты'], ['account', 'Аккаунт']];
-  if (currentUser && currentUser.role === 'admin') tabs.push(['users', 'Пользователи']);
+  if (currentUser && currentUser.role === 'admin') tabs.push(['users', 'Пользователи'], ['access', 'Доступ гостей']);
   return tabs;
 }
 
 function closeSettings(){
-  settingsScroll = { look: 0, fx: 0, account: 0, users: 0 };
+  settingsScroll = { look: 0, fx: 0, account: 0, users: 0, access: 0 };
   var host = $('#prefsHost');
   if (host) host.innerHTML = '';
 }
 function closePrefs(){ closeSettings(); }
 function closeAccount(){ closeSettings(); }
-function openPrefs(){ settingsTab = 'look'; renderSettings(); }
+function openPrefs(){ if (!currentUser){ showAuth(true); return; } settingsTab = 'look'; renderSettings(); }
 function openAccount(){ settingsTab = 'account'; renderSettings(); }
 function openSettings(tab){ if (tab) settingsTab = tab; renderSettings(); }
 
@@ -3771,10 +4292,93 @@ function usersTabHTML(){
     '<div class="auth-msg" id="acMsg"></div>';
 }
 
+function guestSeesTaskIn(t, b){
+  var root = t, guard = 0;
+  while (root && root.parentId && T(root.parentId) && guard++ < 300) root = T(root.parentId);
+  var lst = null;
+  for (var i = 0; i < b.lists.length; i++){ if (b.lists[i].cards.indexOf(root.id) > -1) lst = b.lists[i]; }
+  var fallback = (lst && accessOf(lst)) || accessOf(b);
+  return canSee(chainAccess(t, fallback), null);
+}
+
+function accessTabHTML(){
+  if (!isAdminUser(currentUser)){
+    return '<div class="prefs-hint" style="margin:16px 0">Видимость для гостей настраивает администратор.</div>';
+  }
+  var users = readAuth().users;
+  var cols = '1fr repeat(' + (users.length + 1) + ', 62px)';
+  var head = '<div class="acc-grid" style="grid-template-columns:' + cols + '">' +
+    '<div class="acc-label" style="color:var(--muted);font-size:11.5px;text-transform:uppercase;letter-spacing:.04em;font-weight:600">Доска · список · задача</div>' +
+    '<div class="acc-cell head">Гости</div>' +
+    users.map(function(u){
+      return '<div class="acc-cell head' + (u.id === currentUser.id ? ' you' : '') + '" title="@' + esc(u.login) + '">' +
+        '<span class="acc-col-head">' + esc(u.name || u.login) + '</span></div>';
+    }).join('') + '</div>';
+
+  function cellGuest(spec, on){
+    return '<label class="acc-cell"><input type="checkbox" data-vis="' + spec + '"' + (on ? ' checked' : '') + '></label>';
+  }
+  function cellUser(spec, on, disabled){
+    return '<label class="acc-cell"><input type="checkbox" data-vis="' + spec + '"' + (on ? ' checked' : '') +
+      (disabled ? ' disabled' : '') + '></label>';
+  }
+  function spacer(){
+    return '<div class="acc-cell" style="grid-column:span ' + users.length + '"></div>';
+  }
+
+  var blocks = state.boards.filter(function(b){ return !b._foreign; }).map(function(b){
+    var bAcc = accessOf(b) || {};
+    var bUsers = bAcc.users || {};
+    var rows = '<div class="acc-grid" style="grid-template-columns:' + cols + '">' +
+      '<div class="acc-label"><span class="t">' + esc(b.title) + '</span><span class="n">доска</span></div>' +
+      cellGuest('b:' + b.id + ':g', canSee(accessOf(b), null)) +
+      users.map(function(u){
+        return cellUser('b:' + b.id + ':u:' + u.id, bUsers[u.id] !== false, isAdminUser(u));
+      }).join('') + '</div>';
+
+    b.lists.forEach(function(l){
+      rows += '<div class="acc-grid" style="grid-template-columns:' + cols + '">' +
+        '<div class="acc-label l1"><span class="t">' + esc(l.title) + '</span><span class="n">список</span></div>' +
+        cellGuest('l:' + l.id + ':g', canSee(accessOf(l) || accessOf(b), null)) + spacer() + '</div>';
+      l.cards.forEach(function(id){
+        var t = T(id); if (!t || t.parentId) return;         /* подзадачи настраиваются в карточке */
+        rows += '<div class="acc-grid" style="grid-template-columns:' + cols + '">' +
+          '<div class="acc-label l2"><span class="t">' + esc(t.title || 'Без названия') + '</span><span class="n">задача</span></div>' +
+          cellGuest('t:' + t.id + ':g', guestSeesTaskIn(t, b)) + spacer() + '</div>';
+      });
+    });
+    return rows;
+  }).join('');
+
+  return '<div class="sec-title" style="margin:14px 0 4px">Кто что видит</div>' +
+    '<div class="prefs-hint" style="margin-bottom:10px">Галочка «Гости» открывает доску, список или задачу всем без входа. ' +
+      'Колонки с именами скрывают доску от конкретного пользователя: снятая галочка — человек её не увидит. ' +
+      'Задачу можно открыть и из её карточки кнопкой «Доступ»; подзадачи наследуют доступ родительской задачи. ' +
+      'Администратор видит всё.</div>' +
+    head +
+    '<div class="acc-scroll">' + (blocks || '<div class="prefs-hint">Досок пока нет.</div>') + '</div>' +
+    '<div class="auth-msg" id="acMsg"></div>';
+}
+
+function applyVisSpec(spec, value){
+  var p = String(spec).split(':');
+  var kind = p[0], id = p[1];
+  var o = null;
+  if (kind === 'b') o = state.boards.filter(function(b){ return b.id === id; })[0] || null;
+  else if (kind === 'l') o = findListAnywhere(id);
+  else if (kind === 't') o = T(id);
+  if (!o) return;
+  var acc = normalizeAccess(o);
+  if (p[2] === 'g') acc.guest = !!value;
+  else if (p[2] === 'u') acc.users[p[3]] = !!value;
+  save(); renderSidebar(); renderBoard();
+}
+
 function tabHTML(tab){
   if (tab === 'fx') return fxTabHTML();
   if (tab === 'account') return accountTabHTML();
   if (tab === 'users') return usersTabHTML();
+  if (tab === 'access') return accessTabHTML();
   return lookTabHTML();
 }
 
@@ -3891,6 +4495,9 @@ function settingsClick(e){
     renderSettings();
     return;
   }
+
+  var visEl = e.target.closest('[data-vis]');
+  if (visEl){ applyVisSpec(visEl.getAttribute('data-vis'), visEl.checked); return; }
 
   var accBtn = e.target.closest('[data-acc-act]');
   if (accBtn){ accountAct(accBtn.getAttribute('data-acc-act'), accBtn); return; }
@@ -4110,8 +4717,15 @@ function enterApp(){
     state = { version: 2, activeBoard: null, boards: [], tasks: {} };
     seed();
   }
+  mergeShared(currentUser);
   if (!state.activeBoard && state.boards[0]) state.activeBoard = state.boards[0].id;
+  var curBoard = board();
+  if (!curBoard || !boardVisible(curBoard, currentUser)){
+    var firstVisible = state.boards.filter(function(b){ return boardVisible(b, currentUser); })[0];
+    state.activeBoard = firstVisible ? firstVisible.id : null;
+  }
   if (!appBound){ appBound = true; bindGlobal(); }
+  renderModeUI();
   applyPrefs();
   renderAll();
   renderAccountChip();
@@ -4125,6 +4739,11 @@ window.OmniBoard = {
   getBoards: function(){ return JSON.parse(JSON.stringify(state.boards)); },
   getTasks: function(){ return JSON.parse(JSON.stringify(state.tasks)); },
   exportMarkdown: function(){ return exportMarkdown(); },
+  isGuest: function(){ return !currentUser; },
+  getMode: function(){ return currentUser ? (isAdminUser(currentUser) ? 'admin' : 'user') : 'guest'; },
+  guestState: function(){ return JSON.parse(JSON.stringify(buildGuestState())); },
+  accessDialog: accessDialog,
+  toggleGuestAccess: toggleGuestAccess,
   sha256Hex: function(str){ return bytesToHex(sha256(utf8Bytes(str))); },
   pbkdf2Hex: pbkdf2Hex
 };
@@ -4144,9 +4763,7 @@ window.OmniBoard = {
     }
     clearSession();
   }
-  loadPrefs();
-  applyPrefs();
-  showAuth();
+  enterGuest();
 })();
 
 })();
